@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DashboardPage from '../views/DashboardPage.vue'
-import productsPage from '@/views/productsPage.vue';
+import cataloguePage from '@/views/cataloguePage.vue';
+import loginTemp from '@/views/loginTemp.vue';
 
 const routes =  [
     {
       path: '/',
-      name: 'loginPage',
-      component: loginPage
+      name: 'loginTemp',
+      component: loginTemp
 
     },
      {
@@ -17,16 +18,9 @@ const routes =  [
   {
     path: '/catalogue',
     name: 'catalogue',
-    component: productsPage
+    component: cataloguePage
     
-  },
-  {
-    path: '/page2',
-    name: 'page2',
-    component: Page2
-    
-  },
-  
+  }
   ]
 
 const router = createRouter({

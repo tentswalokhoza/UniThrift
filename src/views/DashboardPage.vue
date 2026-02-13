@@ -1,10 +1,11 @@
 <script setup>
 import {ref, onMounted } from 'vue'
-import NavBar from '@/components/NavrBar.vue'
+import NavBar from '@/components/NavBar.vue'
 </script>
 
 <template>
-  <main>
-  
-  </main>
+  <NavBar/>
 </template>
+
+<style>
+</style>

@@ -19,7 +19,7 @@ import { RouterLink } from 'vue-router';
             <router-link to="/dashboard" class="nav-link active" aria-current="page" >Dashboard</router-link>
           </li>
           <li class="nav-item">
-                <router-link to="/products" class="nav-link products" > Caatalogue</router-link>
+                <router-link to="/catalogue" class="nav-link catalogue">Catalogue</router-link>
           </li>
           <li class="nav-item">
               <router-link to="/payroll" class="nav-link attendance payroll" >?</router-link>
