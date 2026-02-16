@@ -1,17 +1,78 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import NavBar from '@/components/NavBar.vue'
+import { searchQuery } from '@/composables/useSearch';
 
 const products = ref([])
+const filteredProducts = computed(() => {
+  if (!searchQuery.value) return products.value
+  const q = searchQuery.value.toLowerCase()
+  return products.value.filter(p => 
+    p.name.toLowerCase().includes(q) ||
+    p.description?.toLowerCase().includes(q) ||
+    p.category?.toLowerCase().includes(q)
+  )
+})
 
-//Fetching 
-const getImage = (fileName) => {
-  if (!fileName) return new URL('../assets/products/default.png', import.meta.url).href
+// Build a map of images found under src/assets/product at build time
+const importedImages = import.meta.glob('../assets/product/*', { eager: true, as: 'url' })
+const imageMap = {}
+Object.entries(importedImages).forEach(([path, url]) => {
+  const parts = path.split('/')
+  const name = parts[parts.length - 1]
+  imageMap[name] = url
+})
+
+const defaultImg = Object.values(imageMap)[0]
+
+const normalizeName = (s) => {
+  if (!s) return ''
+  const noExt = s.replace(/\.(png|jpe?g|webp|gif|svg)$/i, '')
+  let decoded = noExt
+  try { decoded = decodeURIComponent(noExt) } catch {}
+  return decoded.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
+const normalizedMap = {}
+for (const [name, url] of Object.entries(imageMap)) {
+  normalizedMap[normalizeName(name)] = url
+}
+
+const tokens = (s) => s.split(/\s+/).filter(Boolean)
+
+const getImage = (fileNameOrUrl) => {
+  if (!fileNameOrUrl) return defaultImg
+  if (/^https?:\/\//.test(fileNameOrUrl)) return fileNameOrUrl
+  if (fileNameOrUrl.startsWith('/')) return fileNameOrUrl
+
+  if (imageMap[fileNameOrUrl]) return imageMap[fileNameOrUrl]
+
   try {
-    return new URL(`../assets/products/${fileName}`, import.meta.url).href
-  } catch {
-    return new URL('../assets/products/default.png', import.meta.url).href
+    const decoded = decodeURIComponent(fileNameOrUrl)
+    if (imageMap[decoded]) return imageMap[decoded]
+  } catch {}
+
+  const keyNorm = normalizeName(fileNameOrUrl)
+  if (!keyNorm) return defaultImg
+  if (normalizedMap[keyNorm]) return normalizedMap[keyNorm]
+
+  const keyTokens = tokens(keyNorm)
+  let best = { score: 0, url: null }
+  for (const [imgNorm, url] of Object.entries(normalizedMap)) {
+    const imgTokens = tokens(imgNorm)
+    const set = new Set(imgTokens)
+    let common = 0
+    for (const t of keyTokens) if (set.has(t)) common++
+    if (common > best.score) best = { score: common, url }
   }
+  if (best.score > 0) return best.url
+
+  const lowerKey = keyNorm
+  for (const [name, url] of Object.entries(imageMap)) {
+    if (name.toLowerCase().includes(lowerKey) || lowerKey.includes(name.toLowerCase())) return url
+  }
+
+  return defaultImg
 }
 
 // formatting the dollars to  rands
@@ -41,11 +102,11 @@ onMounted(async()=> {
 
 <div>
   <div class="title">
-     <h5 class="page-title">Catlogue</h5>
+     <h5 class="page-title">Catalogue</h5>
   </div>
     <div class="products-row"  >
         <div
-        v-for="product in products"
+        v-for="product in filteredProducts"
         :key="product.product_id"
         class="product-card">
            
@@ -53,14 +114,8 @@ onMounted(async()=> {
         <!-- display card for catalogue -->
 <div class="card">
   <div class="image_container">
-    <!-- placeholder icon shown when image fails or is loading -->
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="image">
-      <path
-        d="M20 5H4V19L13.2923 9.70649C13.6828 9.31595 14.3159 9.31591 14.7065 9.70641L20 15.0104V5ZM2 3.9934C2 3.44476 2.45531 3 2.9918 3H21.0082C21.556 3 22 3.44495 22 3.9934V20.0066C22 20.5552 21.5447 21 21.0082 21H2.9918C2.44405 21 2 20.5551 2 20.0066V3.9934ZM8 11C6.89543 11 6 10.1046 6 9C6 7.89543 6.89543 7 8 7C9.10457 7 10 7.89543 10 9C10 10.1046 9.10457 11 8 11Z"
-      ></path>
-    </svg>
     <img 
-        :src="getImage(product.image_url)"
+      :src="getImage(product.image_url || product.image)"
         class="card-img-top"
         :alt="`Photo of ${product.name}`"
         />
@@ -146,17 +201,18 @@ onMounted(async()=> {
 
 .page-title {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   font-size: 1.8rem;
   color: #333;
+  font-weight: 700;
 }
 
 .card {
   
   --bg-card: #27272a;
-  --primary: #6d28d9;
-  --primary-800: #4c1d95;
-  --primary-shadow: #2e1065;
+  --primary: #00faabaa;
+  --primary-800: #00faabaa;
+  --primary-shadow: #00faabaa;
   --light: #d9d9d9;
   --zinc-800: #18181b;
   --bg-linear: linear-gradient(0deg, var(--primary) 50%, var(--light) 125%);
@@ -168,15 +224,24 @@ onMounted(async()=> {
   gap: 0.75rem;
 
   padding: 1rem;
-  height:550px;
-  width: 350px;
+  min-height: 28rem;
+  width: 340px;
   background-color: var(--bg-card);
 
   border-radius: 1rem;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
 }
 
-.description{
-  height:200px;
+.card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(0, 250, 171, 0.25);
+  background-color: #2a2a2d;
+}
+
+.product-card {
+  flex: 0 1 340px;
 }
 
 .image_container {
@@ -187,7 +252,7 @@ onMounted(async()=> {
   z-index: 5;
 
   width: 100%;
-  height: 8rem;
+  height: 25rem;
   background-color: var(--primary-800);
 
   border-radius: 0.5rem;
@@ -202,6 +267,11 @@ onMounted(async()=> {
   object-fit: cover;
   border-radius: 0.5rem;
   z-index: 1;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .image_container img {
+  transform: scale(1.08);
 }
 
 .image_container .image {
@@ -216,7 +286,7 @@ onMounted(async()=> {
 }
 
 .title {
-  overflow: clip;
+  overflow: hidden;
 
   width: 100%;
 
@@ -224,7 +294,7 @@ onMounted(async()=> {
   font-weight: 600;
   color: var(--light);
   text-transform: capitalize;
-  text-wrap: nowrap;
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
@@ -297,12 +367,22 @@ onMounted(async()=> {
 
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--light);
+  color:black;
   text-wrap: nowrap;
 
   border: 2px solid hsla(262, 83%, 58%, 0.5);
   border-radius: 0.5rem;
   box-shadow: inset 0 0 0.25rem 1px var(--light);
+  transition: all 0.3s ease;
+}
+
+.cart-button:hover {
+  transform: scale(1.05);
+  box-shadow: inset 0 0 0.5rem 1px var(--light), 0 0 12px rgba(0, 250, 171, 0.6);
+}
+
+.cart-button:active {
+  transform: scale(0.98);
 }
 
 .cart-button .cart-icon {
@@ -310,20 +390,19 @@ onMounted(async()=> {
 }
 
 .product-id {
-  font-size: 0.65rem;
+  font-size: 0.9rem;
   color: var(--primary);
   font-weight: 500;
 }
 
 .description {
-  font-size: 0.7rem;
+  font-size: 0.95rem;
   color: var(--light);
-  line-height: 1.3;
-  max-height: 2.1em;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .category {
@@ -335,12 +414,12 @@ onMounted(async()=> {
 }
 
 .stock-info {
-  font-size: 0.7rem;
+  font-size: 1.5rem;
   color: var(--light);
 }
 
 .created-date {
-  font-size: 0.65rem;
+  font-size: 1rem;
   color: #888;
   font-style: italic;
 }
@@ -351,6 +430,33 @@ onMounted(async()=> {
   justify-content: center;
   gap: 1.5rem;
   padding: 1rem;
+  animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.product-card {
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 </style>
