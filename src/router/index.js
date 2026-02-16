@@ -3,6 +3,7 @@ import DashboardPage from '../views/DashboardPage.vue'
 import cataloguePage from '@/views/cataloguePage.vue';
 import loginTemp from '@/views/loginTemp.vue';
 import sellerPage from '@/views/sellerPage.vue';
+import ContactPage from '@/views/contactPage.vue';
 import AboutPage from '@/views/AboutPage.vue';
 
 const routes =  [
@@ -28,6 +29,16 @@ const routes =  [
     name: 'seller',
     component: sellerPage
   },
+  {
+     path: '/contact',
+    name: 'contact',
+    component: ContactPage
+  },
+  {
+     path: '/about',
+    name: 'about',
+    component: AboutPage
+  }
   ]
 
 const router = createRouter({

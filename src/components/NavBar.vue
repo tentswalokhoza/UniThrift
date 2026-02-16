@@ -26,13 +26,10 @@ import { searchQuery } from '@/composables/useSearch';
               <router-link to="/seller" class="nav-link sellerReview" >Seller </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/employee" class="nav-link attendance employee" >?</router-link>
+            <router-link to="/contact" class="nav-link contact" >Contact</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/leave" class="nav-link leave">?</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link to="/application" class="nav-link application">?</router-link>
+            <router-link to="/about" class="nav-link about">About</router-link>
           </li>
         </ul>
         <input 
