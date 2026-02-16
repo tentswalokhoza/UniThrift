@@ -8,6 +8,19 @@ export const getSellersDb = async () => {
     return rows;
 }
 
+//fetch top sellers products (highest rated sellers)
+export const getTopSellersProductsDb = async (limit = 6) => {
+    const query = `
+        SELECT p.* FROM products p
+        LEFT JOIN seller_reviews sr ON p.seller_id = sr.seller_id
+        WHERE p.show_on_dashboard = 1
+        ORDER BY COALESCE(sr.rating, 0) DESC, p.created_at DESC
+        LIMIT ?
+    `;
+    const [rows] = await pool.query(query, [limit]);
+    return rows;
+}
+
 //add seller data 
 export const postProductsDb = async (
     name,

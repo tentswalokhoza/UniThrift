@@ -19,6 +19,11 @@ const routes =  [
     component: DashboardPage
   },
   {
+    path: '/dashboard/:category',
+    name: 'dashboardCategory',
+    component: DashboardPage
+  },
+  {
     path: '/catalogue',
     name: 'catalogue',
     component: cataloguePage

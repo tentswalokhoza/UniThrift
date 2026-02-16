@@ -1,4 +1,4 @@
-import { getProductsDb, postProductsDb, patchProductsDb } from "../models/productsDb.js";
+import { getProductsDb, getDashboardProductsDb, postProductsDb, patchProductsDb } from "../models/productsDb.js";
 
 
 //retrieves products
@@ -9,6 +9,17 @@ export const getProducts = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to fetch products from catalogue' });
+    }
+};
+
+//retrieves dashboard products only
+export const getDashboardProducts = async (req, res) => {
+    try {
+        const data = await getDashboardProductsDb();
+        res.json(data);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch dashboard products' });
     }
 };
 

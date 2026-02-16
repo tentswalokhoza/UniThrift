@@ -7,6 +7,12 @@ export const getProductsDb = async () => {
     return rows;
 }
 
+//fetch only dashboard products
+export const getDashboardProductsDb = async () => {
+    const [rows] = await pool.query('SELECT * FROM products WHERE show_on_dashboard = 1;');
+    return rows;
+}
+
 //add new product
 export const postProductsDb = async (
     name,
