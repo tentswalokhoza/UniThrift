@@ -1,5 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router';
+import { searchQuery } from '@/composables/useSearch';
 </script>
 
 <template>
@@ -19,21 +20,24 @@ import { RouterLink } from 'vue-router';
             <router-link to="/dashboard" class="nav-link active" aria-current="page" >Dashboard</router-link>
           </li>
           <li class="nav-item">
-                <router-link to="/products" class="nav-link products" > Caatalogue</router-link>
+                <router-link to="/catalogue" class="nav-link catalogue">Catalogue</router-link>
           </li>
           <li class="nav-item">
-              <router-link to="/payroll" class="nav-link attendance payroll" >?</router-link>
+              <router-link to="/seller" class="nav-link sellerReview" >Seller </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/employee" class="nav-link attendance employee" >?</router-link>
+            <router-link to="/contact" class="nav-link contact" >Contact</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/leave" class="nav-link leave">?</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link to="/application" class="nav-link application">?</router-link>
+            <router-link to="/about" class="nav-link about">About</router-link>
           </li>
         </ul>
+        <input 
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search products..."
+          class="nav-search"
+        />
       </div>
     </div>
   </nav>
@@ -41,5 +45,27 @@ import { RouterLink } from 'vue-router';
 <style scoped>
 li{
   margin:0% 10% 0;
+}
+
+.nav-search {
+  padding: 8px 12px;
+  border: 1px solid #00faab;
+  border-radius: 0.5rem;
+  background-color: #1a1a1a;
+  color: #d9d9d9;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.nav-search::placeholder {
+  color: #888;
+}
+
+.nav-search:focus {
+  border-color: #00faab;
+  box-shadow: 0 0 8px rgba(0, 250, 171, 0.3);
+  background-color: #222;
 }
 </style>
