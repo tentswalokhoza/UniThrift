@@ -1,13 +1,26 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useRoute } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
 import { searchQuery } from '@/composables/useSearch';
 
 const products = ref([])
+const route = useRoute()
+
 const filteredProducts = computed(() => {
-  if (!searchQuery.value) return products.value
+  let list = products.value
+
+  // apply category filter from route query if present
+  const cat = (route.query.category || '').toString().trim()
+  if (cat) {
+    const catLower = cat.toLowerCase()
+    list = list.filter(p => (p.category || '').toLowerCase() === catLower)
+  }
+
+  // apply global search query if set
+  if (!searchQuery.value) return list
   const q = searchQuery.value.toLowerCase()
-  return products.value.filter(p => 
+  return list.filter(p => 
     p.name.toLowerCase().includes(q) ||
     p.description?.toLowerCase().includes(q) ||
     p.category?.toLowerCase().includes(q)

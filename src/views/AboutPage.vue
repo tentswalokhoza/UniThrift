@@ -15,7 +15,7 @@ import NavBar from '@/components/NavBar.vue'
 
     <!-- Main Content -->
     <div class="content-wrapper">
-      <!-- Story Section -->
+      <!-- Our story -->
       <section class="about-section">
         <div class="section-header">
           <div class="icon-circle story-icon">📖</div>
@@ -48,7 +48,7 @@ import NavBar from '@/components/NavBar.vue'
         </p>
       </section>
 
-      <!-- Values Section -->
+      <!-- Values of our company -->
       <section class="values-section">
         <h2 class="values-title">Our Values</h2>
         <div class="values-grid">

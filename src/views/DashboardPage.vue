@@ -1,64 +1,156 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 
-const dashboardStats = ref([
-  { icon: '📦', label: 'Total Orders', value: '12' },
-  { icon: '💰', label: 'Total Spent', value: 'R1,245' },
-  { icon: '❤️', label: 'Wishlist Items', value: '8' },
-  { icon: '📍', label: 'Active Addresses', value: '2' }
-])
+const categories = ['All', 'Jackets', 'Shoes', 'Accessories', 'Pants', 'T-Shirts'];
 
-const recentOrders = ref([
-  { id: 1, product: 'Vintage Denim Jacket', status: 'Delivered', date: '2026-02-10', price: 'R350' },
-  { id: 2, product: 'Blue Sneakers', status: 'Processing', date: '2026-02-15', price: 'R450' },
-  { id: 3, product: 'Summer Dress', status: 'Shipped', date: '2026-02-16', price: 'R280' }
-])
+// resolve local product images (build-time) similar to cataloguePage
+const importedImages = import.meta.glob('../assets/product/*', { eager: true, as: 'url' })
+const imageMap = {}
+Object.entries(importedImages).forEach(([path, url]) => {
+  const parts = path.split('/')
+  const name = parts[parts.length - 1]
+  imageMap[name] = url
+})
+
+const getImageUrl = (val) => {
+  if (!val) return ''
+  if (typeof val !== 'string') return ''
+  if (/^https?:\/\//.test(val)) return val
+  const key = val.replace(/^\//, '')
+  if (imageMap[key]) return imageMap[key]
+  try { if (imageMap[decodeURIComponent(val)]) return imageMap[decodeURIComponent(val)] } catch {}
+  const lower = val.toLowerCase()
+  for (const [name, url] of Object.entries(imageMap)) {
+    if (name.toLowerCase().includes(lower) || lower.includes(name.toLowerCase())) return url
+  }
+  return ''
+}
+
+const allProducts = ref([])
+
+onMounted(async () => {
+  try {
+    const res = await fetch('http://localhost:2006/products')
+    if (!res.ok) throw new Error(res.statusText)
+    const data = await res.json()
+    allProducts.value = data.map(p => ({
+      ...p,
+      image: getImageUrl(p.image || p.image_url || p.image_url_local || p.filename || '')
+    }))
+    console.debug('Dashboard fetched products:', allProducts.value)
+  } catch (err) {
+    console.warn('Failed to fetch products for category images', err)
+  }
+})
+
+const getCategoryImage = (category) => {
+  const normalize = (s) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+  const catNorm = normalize(category)
+  const fallbackMap = {
+    Jackets: getImageUrl('varsity-jacket.png') || getImageUrl('leather jacket.png') || 'https://images.unsplash.com/photo-1520975916090-3105956dac38',
+    Shoes: getImageUrl('converse.png') || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff',
+    Accessories: getImageUrl('casio.png') || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30',
+    Pants: getImageUrl('bootlegged-jeans.png') || 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246',
+    'T-Shirts': getImageUrl('graphic-tee.png') || 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f'
+  }
+
+  // collect candidate products that have an image
+  const candidates = allProducts.value
+    .map(p => ({
+      ...p,
+      image: getImageUrl(p.image || p.image_url || p.image_url_local || p.filename || '')
+    }))
+    .filter(p => p && p.image)
+
+  if (candidates.length && catNorm) {
+    // 1) exact category match
+    const exact = candidates.find(p => normalize(p.category) === catNorm)
+    if (exact) return getImageUrl(exact.image) || exact.image
+
+    // 2) partial contains match (either direction)
+    const partial = candidates.find(p => normalize(p.category).includes(catNorm) || catNorm.includes(normalize(p.category)))
+    if (partial) return getImageUrl(partial.image) || partial.image
+
+    // 3) try matching by product name tokens for specific requests
+    const specialTokens = {
+      Shoes: ['converse', 'sneaker', 'converse shoe'],
+      Pants: ['bootleg', 'jeans', 'trouser', 'pants'],
+      Accessories: ['casio', 'watch', 'keychain', 'key chain', 'key-ring', 'keyring', 'accessory'],
+      Jackets: ['leather jacket', 'leather', 'jacket'],
+      'T-Shirts': ['t-shirt', 't shirts', 'tshirt', 'tee']
+    }
+    const nameIncludes = (p, toks) => toks.some(tok => (p.name || '').toString().toLowerCase().includes(tok))
+    const mapTokens = specialTokens[category] || []
+    if (mapTokens.length) {
+      const byName = candidates.find(p => nameIncludes(p, mapTokens))
+      if (byName) return getImageUrl(byName.image) || byName.image
+    }
+
+    // 4) token overlap scoring on category string
+    const catTokens = new Set(catNorm.split(' ').filter(Boolean))
+    let best = { score: 0, image: null }
+    for (const p of candidates) {
+      const tokensArr = normalize(p.category).split(' ').filter(Boolean)
+      let score = 0
+      for (const t of tokensArr) if (catTokens.has(t)) score++
+      if (score > best.score) best = { score, image: p.image }
+    }
+    if (best.image) return getImageUrl(best.image) || best.image
+
+    // 5) prefer category fallback before generic first image
+    if (fallbackMap[category]) return fallbackMap[category]
+    if (candidates.length) return getImageUrl(candidates[0].image) || candidates[0].image
+  }
+
+  return fallbackMap[category] || ''
+}
 </script>
 
 <template>
   <NavBar/>
+
   <div class="dashboard-container">
+
+    <!-- HERO -->
     <div class="hero-section">
-      <div class="hero-content">
-        <h1 class="hero-title">My Dashboard</h1>
-        <p class="hero-subtitle">Welcome back, Student!</p>
+      <div class="hero-overlay">
+        <div class="hero-content">
+          <h1 class="hero-title">UniThrift Dahboard</h1>
+          <h2>The student market.</h2>
+          <p class="hero-subtitle"></p>
+        </div>
       </div>
     </div>
 
+    <!-- CAMPUS MAP -->
     <div class="content-wrapper">
-      <!-- Stats Grid -->
-      <div class="stats-grid">
-        <div v-for="stat in dashboardStats" :key="stat.label" class="stat-card">
-          <div class="stat-icon">{{ stat.icon }}</div>
-          <div class="stat-info">
-            <p class="stat-label">{{ stat.label }}</p>
-            <p class="stat-value">{{ stat.value }}</p>
-          </div>
+      <h2 class="section-title">Campus Map</h2>
+    </div>
+
+    <div class="map-container" id="map"></div>
+
+    <!-- BROWSE SECTION -->
+    <div class="content-wrapper">
+      <div class="browse-section">
+        <h2 class="section-title">Browse by Category</h2>
+
+        <div class="category-grid">
+          <router-link
+            v-for="category in categories.filter(c => c !== 'All')"
+            :key="category"
+            :to="{ name: 'catalogue', query: { category } }"
+            class="category-card"
+          >
+            <img :src="getCategoryImage(category)" />
+            <div class="category-content">
+              <h3>{{ category }}</h3>
+            </div>
+          </router-link>
         </div>
       </div>
-
-      <!-- Recent Orders Section -->
-      <section class="orders-section">
-        <h2 class="section-title">Recent Orders</h2>
-        <div class="orders-table">
-          <div class="table-header">
-            <div class="table-cell">Product</div>
-            <div class="table-cell">Status</div>
-            <div class="table-cell">Date</div>
-            <div class="table-cell">Price</div>
-          </div>
-          <div v-for="order in recentOrders" :key="order.id" class="table-row">
-            <div class="table-cell">{{ order.product }}</div>
-            <div class="table-cell">
-              <span class="status-badge" :class="order.status.toLowerCase()">{{ order.status }}</span>
-            </div>
-            <div class="table-cell">{{ order.date }}</div>
-            <div class="table-cell">{{ order.price }}</div>
-          </div>
-        </div>
-      </section>
     </div>
+
   </div>
 </template>
 
@@ -69,102 +161,47 @@ const recentOrders = ref([
   color: #d9d9d9;
 }
 
+
 .hero-section {
-  background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
-  padding: 80px 20px;
-  text-align: center;
-  color: black;
+  height: 400px;
+  padding: 0;
   position: relative;
-  overflow: hidden;
+  border-radius: 16px;
+  margin: 20px;
 }
 
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 400px;
-  height: 400px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  pointer-events: none;
+.hero-overlay {
+  background: rgba(0,0,0,0.6);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
 }
 
 .hero-content {
   position: relative;
   z-index: 1;
+  color: white;
+  text-align: center;
 }
 
 .hero-title {
   font-size: 3rem;
   font-weight: 800;
-  margin: 0;
   margin-bottom: 10px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .hero-subtitle {
   font-size: 1.2rem;
-  font-weight: 500;
-  margin: 0;
   opacity: 0.9;
 }
 
+
 .content-wrapper {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 60px 20px;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 30px;
-  margin-bottom: 60px;
-}
-
-.stat-card {
-  background: linear-gradient(135deg, #27272a 0%, #1f1f23 100%);
-  padding: 30px 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 250, 171, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  transition: all 0.3s ease;
-  animation: fadeIn 0.8s ease-in;
-}
-
-.stat-card:hover {
-  border-color: #00faab;
-  box-shadow: 0 8px 24px rgba(0, 250, 171, 0.15);
-  transform: translateY(-5px);
-}
-
-.stat-icon {
-  font-size: 2.5rem;
-  flex-shrink: 0;
-}
-
-.stat-info {
-  flex: 1;
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: #888;
-  margin: 0;
-}
-
-.stat-value {
-  font-size: 1.8rem;
-  color: #00faab;
-  margin: 5px 0 0 0;
-  font-weight: 700;
-}
-
-.orders-section {
-  animation: fadeIn 0.8s ease-in;
+  padding: 40px 20px;
 }
 
 .section-title {
@@ -174,80 +211,52 @@ const recentOrders = ref([
   font-weight: 700;
 }
 
-.orders-table {
-  border: 1px solid rgba(0, 250, 171, 0.2);
+
+.map-container {
+  height: 400px;
+  background-color: #1f1f23;
+  margin: 20px;
   border-radius: 12px;
+  border: 1px solid rgba(0, 250, 171, 0.1);
+}
+
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+.category-card {
+  background: #1f1f23;
+  border-radius: 16px;
   overflow: hidden;
+  cursor: pointer;
+  transition: 0.3s ease;
+  border: 1px solid rgba(0, 250, 171, 0.1);
+  text-decoration: none;
 }
 
-.table-header {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  background: linear-gradient(135deg, rgba(0, 250, 171, 0.1) 0%, rgba(0, 200, 150, 0.1) 100%);
-  border-bottom: 2px solid rgba(0, 250, 171, 0.2);
+.category-card:hover {
+  transform: translateY(-8px);
+  border-color: #00faab;
+  box-shadow: 0 8px 24px rgba(0, 250, 171, 0.15);
+}
+
+.category-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.category-content {
   padding: 15px;
-  font-weight: 600;
-  color: #00faab;
+  text-align: center;
 }
 
-.table-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  border-bottom: 1px solid rgba(0, 250, 171, 0.1);
-  padding: 15px;
-  align-items: center;
-  transition: background-color 0.2s ease;
-}
-
-.table-row:hover {
-  background-color: rgba(0, 250, 171, 0.05);
-}
-
-.table-row:last-child {
-  border-bottom: none;
-}
-
-.table-cell {
-  font-size: 0.95rem;
+.category-content h3 {
   color: #d9d9d9;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
-.status-badge.delivered {
-  background-color: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
-.status-badge.processing {
-  background-color: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-}
-
-.status-badge.shipped {
-  background-color: rgba(168, 85, 247, 0.2);
-  color: #a855f7;
-  border: 1px solid rgba(168, 85, 247, 0.3);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  margin: 0;
 }
 
 @media (max-width: 768px) {
@@ -259,22 +268,8 @@ const recentOrders = ref([
     font-size: 1rem;
   }
 
-  .hero-section {
-    padding: 50px 20px;
-  }
-
-  .stats-grid {
+  .category-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
-
-  .table-header,
-  .table-row {
-    grid-template-columns: 1fr;
-  }
-
-  .content-wrapper {
-    padding: 40px 20px;
   }
 }
 </style>
