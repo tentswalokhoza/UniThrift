@@ -5,7 +5,9 @@ import authRoutes from "./bcryptAuth.js"
 
 
 
-import { getProducts } from './controllers/productsCon.js';
+import { getProducts, getDashboardProducts, patchProducts, postProducts } from './controllers/productsCon.js';
+
+import { getSeller, getTopSellersProducts } from './controllers/sellerCon.js';
 
 dotenv.config()
 
@@ -21,5 +23,10 @@ app.listen(2006, () => {
 });
 
 app.get('/products',getProducts)
+app.get('/products/dashboard', getDashboardProducts)
+app.get('/topsellers', getTopSellersProducts)
+app.post('/products',postProducts)
+app.patch('/products',patchProducts)
 
 
+app.get('/seller',getSeller)
