@@ -1,11 +1,10 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import DashboardPage from '../views/DashboardPage.vue'
-import Login from '../views/Login.vue'
-
-import cataloguePage from '@/views/cataloguePage.vue'
-import sellerPage from '@/views/sellerPage.vue'
-import ContactPage from '@/views/contactPage.vue'
-import AboutPage from '@/views/AboutPage.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import DashboardPage from '../views/DashboardPage.vue';
+import Login from '../views/Login.vue';
+import cataloguePage from '@/views/cataloguePage.vue';
+import sellerPage from '@/views/sellerPage.vue';
+import ContactPage from '@/views/contactPage.vue';
+import AboutPage from '@/views/AboutPage.vue';
 
 const routes = [
   {
