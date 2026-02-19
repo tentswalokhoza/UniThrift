@@ -1,15 +1,23 @@
 import express from 'express';
 import cors from 'cors';
+import dotenv from "dotenv"
+import authRoutes from "./bcryptAuth.js"
+
+
 
 import { getProducts, getDashboardProducts, patchProducts, postProducts } from './controllers/productsCon.js';
 
 import { getSeller, getTopSellersProducts } from './controllers/sellerCon.js';
+
+dotenv.config()
 
 import {checkout,updateOrderStatus,getOrderDetails,getUserOrders,addToCart,viewCart,removeFromCart,clearCartController} from './controllers/cartCon.js';
 
 const app = express();
 app.use(cors()); 
 app.use(express.json());
+app.use("/api/auth", authRoutes)
+
 
 //  Start server
 app.listen(2006, () => {
