@@ -6,32 +6,13 @@ import sellerPage from '@/views/sellerPage.vue';
 import ContactPage from '@/views/contactPage.vue';
 import AboutPage from '@/views/AboutPage.vue';
 
-
-const routes =  [
-    {
-      path: '/',
-      name: 'Login',
-      component: Login
-    },
-  //{
-  //    path: '/',
-  //    {
-  //   path: '/dashboard',
-  //   name: 'dashboard',
-  //   component: DashboardPage
-  // },
-  // {
-  //   path: '/catalogue',
-  //   name: 'catalogue',
-  //   component: productsPage
-    
-  // }
-  
-   //   name: 'loginTemp',
-    //  component: loginTemp
-
-   // },
-     {
+const routes = [
+  {
+    path: '/',
+    name: 'Login',
+    component: Login
+  },
+  {
     path: '/dashboard',
     name: 'dashboard',
     component: DashboardPage
@@ -45,7 +26,6 @@ const routes =  [
     path: '/catalogue',
     name: 'catalogue',
     component: cataloguePage
-    
   },
   {
     path: '/seller',
@@ -53,20 +33,35 @@ const routes =  [
     component: sellerPage
   },
   {
-     path: '/contact',
+    path: '/contact',
     name: 'contact',
     component: ContactPage
   },
   {
-     path: '/about',
+    path: '/about',
     name: 'about',
     component: AboutPage
   }
-  ]
+]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-});
+})
 
-export default router;
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+
+  const publicPages = ['Login']
+  const authRequired = !publicPages.includes(to.name)
+
+  if (authRequired && !token) {
+    next({ name: 'Login' })
+  } else if (to.name === 'Login' && token) {
+    next({ name: 'dashboard' })
+  } else {
+    next()
+  }
+})
+
+export default router
