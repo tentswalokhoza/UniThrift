@@ -1,6 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import DashboardPage from '../views/DashboardPage.vue'
-import Login from '../views/Login.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import DashboardPage from '../views/DashboardPage.vue';
+import Login from '../views/Login.vue';
 import productsPage from '@/views/productsPage.vue';
 
 import cataloguePage from '@/views/cataloguePage.vue';
@@ -15,14 +15,25 @@ const routes =  [
       path: '/',
       name: 'Login',
       component: Login
-
     },
-  {
-      path: '/',
-      name: 'loginTemp',
-      component: loginTemp
+  //{
+  //    path: '/',
+  //    {
+  //   path: '/dashboard',
+  //   name: 'dashboard',
+  //   component: DashboardPage
+  // },
+  // {
+  //   path: '/catalogue',
+  //   name: 'catalogue',
+  //   component: productsPage
+    
+  // }
+  
+   //   name: 'loginTemp',
+    //  component: loginTemp
 
-    },
+   // },
      {
     path: '/dashboard',
     name: 'dashboard',
