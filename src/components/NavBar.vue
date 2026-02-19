@@ -1,6 +1,21 @@
 <script setup>
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import { searchQuery } from '@/composables/useSearch';
+import { computed } from 'vue'
+
+const router = useRouter()
+
+// Check if user is logged in
+const isLoggedIn = computed(() => {
+  return !!localStorage.getItem("token")
+})
+
+// Logout function
+const handleLogout = () => {
+  localStorage.removeItem("token")   // remove token
+  router.push({ name: 'Login' })     // redirect to login page
+}
+
 </script>
 
 <template>
@@ -32,6 +47,11 @@ import { searchQuery } from '@/composables/useSearch';
             <router-link to="/about" class="nav-link about">About</router-link>
           </li>
         </ul>
+        <li class="nav-item" v-if="isLoggedIn">
+  <button @click="handleLogout" class="nav-link btn btn-link">
+    Logout
+  </button>
+</li>
         <input 
           v-model="searchQuery"
           type="text"

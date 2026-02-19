@@ -4,7 +4,7 @@
       <h2>{{ currentViewTitle }}</h2>
 
       <!-- LOGIN -->
-      <form v-if="currentView === 'login'" @submit.prevent="handleLogin">
+      <form v-if="currentView === 'Login'" @submit.prevent="handleLogin">
         <input v-model="loginForm.email" type="email" placeholder="Email" required />
         <input v-model="loginForm.password" type="password" placeholder="Password" required />
 
@@ -25,7 +25,7 @@
 
         <button type="submit">Register</button>
 
-        <p class="link" @click="switchView('login')">
+        <p class="link" @click="switchView('Login')">
           Already have an account? Login
         </p>
       </form>
@@ -36,7 +36,7 @@
 
         <button type="submit">Reset Password</button>
 
-        <p class="link" @click="switchView('login')">Back to Login</p>
+        <p class="link" @click="switchView('Login')">Back to Login</p>
       </form>
 
       <p class="message" v-if="message">{{ message }}</p>
@@ -47,9 +47,11 @@
 <script setup>
 import axios from "axios"
 import { ref, computed } from "vue"
+import { useRouter } from "vue-router"
 
-const currentView = ref("login")
+const currentView = ref('Login')
 const message = ref("")
+const router  = useRouter()
 
 // Forms
 const loginForm = ref({
@@ -90,13 +92,15 @@ const switchView = (view) => {
 const handleLogin = async () => {
   try {
     const response = await axios.post(
-      "http://localhost:2006/api/auth/login",
+      "http://localhost:2006/api/auth/Login",
       loginForm.value
     )
     message.value = response.data.message
 
     // Save token
     localStorage.setItem("token", response.data.token)
+
+    router.push({ name: "dashboard"})
 
   } catch (error) {
     message.value = error.response?.data?.message || "Login failed"
@@ -119,16 +123,27 @@ const handleRegister = async () => {
       }
     )
 
-    message.value = response.data.message
-    switchView("login")
+    // Show success message
+    message.value = response.data.message || "Registered successfully"
+
+    // Clear form
+    registerForm.value = {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: ""
+    }
+
+    // Wait 2 seconds before switching to login
+    setTimeout(() => {
+      message.value = ""
+      switchView("Login")
+    }, 2000)
 
   } catch (error) {
     message.value = error.response?.data?.message || "Registration failed"
   }
 }
-  console.log("Register Data:", registerForm.value)
-  message.value = "Registered successfully"
-
 
 const handleForgotPassword = () => {
   console.log("Reset Email:", forgotForm.value.email)
