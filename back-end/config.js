@@ -1,18 +1,9 @@
-import mysql from "mysql2/promise"
-import dotenv from "dotenv"
+//connection with pool
+import mysql from 'mysql2/promise'
 
-dotenv.config()
-
-/*
-Create connection pool
-Pool is better than single connection
-It manages multiple connections efficiently
-*/
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
+export const pool = mysql.createPool({
+    user: 'root',
+    host: 'localhost', 
+    database: 'unithrift',
+    password: 'Yaqoob_sams1'
 })
-
-export {pool}

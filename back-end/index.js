@@ -1,21 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from "dotenv"
-import authRoutes from "./bcryptAuth.js"
-
-
 
 import { getProducts, getDashboardProducts, patchProducts, postProducts } from './controllers/productsCon.js';
 
 import { getSeller, getTopSellersProducts } from './controllers/sellerCon.js';
 
-dotenv.config()
-
 const app = express();
 app.use(cors()); 
 app.use(express.json());
-app.use("/api/auth", authRoutes)
-
 
 //  Start server
 app.listen(2006, () => {
