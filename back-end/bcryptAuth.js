@@ -8,9 +8,12 @@ const router = express.Router()
 // REGISTER
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body
+    const { name, email, password, phone_number } = req.body
 
-    // Check if user exists
+    if (!name || !email || !password || !phone_number) {
+      return res.status(400).json({ message: "All fields are required" })
+    }
+
     const [existingUser] = await pool.execute(
       "SELECT * FROM users WHERE email = ?",
       [email]
@@ -20,18 +23,14 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ message: "User already exists" })
     }
 
-    //Hash password
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    // FORCE authority to "user"
-    // Users cannot choose their role during registration
-    const authority = "user"
+    const role = "user"
 
-    // Insert user
     await pool.execute(
-      "INSERT INTO users (name, email, password, authority) VALUES (?, ?, ?, ?)",
-      [name, email, hashedPassword, authority]
+      "INSERT INTO users (name, email, password, phone_number, role) VALUES (?, ?, ?, ?, ?)",
+      [name, email, hashedPassword, phone_number, role]
     )
 
     res.status(201).json({ message: "User registered successfully" })
@@ -46,6 +45,10 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" })
+    }
 
     const [rows] = await pool.execute(
       "SELECT * FROM users WHERE email = ?",
@@ -64,12 +67,12 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" })
     }
 
-    // Include authority in JWT
+    // Create JWT
     const token = jwt.sign(
       {
         id: user.id,
         email: user.email,
-        authority: user.authority
+        role: user.role
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
@@ -78,9 +81,8 @@ router.post("/login", async (req, res) => {
     res.json({
       message: "Login successful",
       token,
-      authority: user.authority
+      role: user.role
     })
-    
 
   } catch (error) {
     console.error(error)

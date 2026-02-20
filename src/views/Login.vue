@@ -4,7 +4,7 @@
       <h2>{{ currentViewTitle }}</h2>
 
       <!-- LOGIN -->
-      <form v-if="currentView === 'Login'" @submit.prevent="handleLogin">
+      <form v-if="currentView === 'login'" @submit.prevent="handleLogin">
         <input v-model="loginForm.email" type="email" placeholder="Email" required />
         <input v-model="loginForm.password" type="password" placeholder="Password" required />
 
@@ -20,12 +20,13 @@
       <form v-if="currentView === 'register'" @submit.prevent="handleRegister">
         <input v-model="registerForm.name" type="text" placeholder="Full Name" required />
         <input v-model="registerForm.email" type="email" placeholder="Email" required />
+        <input v-model="registerForm.phone_number" type="text" placeholder="Phone Number" required/>
         <input v-model="registerForm.password" type="password" placeholder="Password" required />
         <input v-model="registerForm.confirmPassword" type="password" placeholder="Confirm Password" required />
 
         <button type="submit">Register</button>
 
-        <p class="link" @click="switchView('Login')">
+        <p class="link" @click="switchView('login')">
           Already have an account? Login
         </p>
       </form>
@@ -36,7 +37,7 @@
 
         <button type="submit">Reset Password</button>
 
-        <p class="link" @click="switchView('Login')">Back to Login</p>
+        <p class="link" @click="switchView('login')">Back to Login</p>
       </form>
 
       <p class="message" v-if="message">{{ message }}</p>
@@ -49,7 +50,7 @@ import axios from "axios"
 import { ref, computed } from "vue"
 import { useRouter } from "vue-router"
 
-const currentView = ref('Login')
+const currentView = ref('login')
 const message = ref("")
 const router  = useRouter()
 
@@ -62,6 +63,7 @@ const loginForm = ref({
 const registerForm = ref({
   name: "",
   email: "",
+  phone_number: "",
   password: "",
   confirmPassword: ""
 })
@@ -92,7 +94,7 @@ const switchView = (view) => {
 const handleLogin = async () => {
   try {
     const response = await axios.post(
-      "http://localhost:2006/api/auth/Login",
+      "http://localhost:2006/api/auth/login",
       loginForm.value
     )
     message.value = response.data.message
@@ -107,11 +109,32 @@ const handleLogin = async () => {
   }
 }
 
+const isLoading = ref(false)
+const phoneError = ref(false)
+
+const validatePhone = (phone) => {
+  const phoneRegex = /^[0-9]{10,15}$/   // 10–15 digits only
+  phoneError.value = !phoneRegex.test(phone)
+}
+
 const handleRegister = async () => {
+  message.value = ""
+
+  // Password check
   if (registerForm.value.password !== registerForm.value.confirmPassword) {
     message.value = "Passwords do not match!"
     return
   }
+
+  // Phone validation
+  validatePhone(registerForm.value.phone_number)
+
+  if (phoneError.value) {
+    message.value = "Phone number must be 10–15 digits"
+    return
+  }
+
+  isLoading.value = true
 
   try {
     const response = await axios.post(
@@ -119,29 +142,35 @@ const handleRegister = async () => {
       {
         name: registerForm.value.name,
         email: registerForm.value.email,
+        phone_number: registerForm.value.phone_number,
         password: registerForm.value.password
       }
     )
 
-    // Show success message
     message.value = response.data.message || "Registered successfully"
 
-    // Clear form
+    // Reset form
     registerForm.value = {
       name: "",
       email: "",
+      phone_number: "",
       password: "",
       confirmPassword: ""
     }
 
-    // Wait 2 seconds before switching to login
+    // Redirect to login
     setTimeout(() => {
       message.value = ""
-      switchView("Login")
+      switchView("login")   // ⚠ make sure it's lowercase
     }, 2000)
 
   } catch (error) {
-    message.value = error.response?.data?.message || "Registration failed"
+    message.value =
+      error.response?.data?.message ||
+      error.message ||
+      "Registration failed"
+  } finally {
+    isLoading.value = false
   }
 }
 
