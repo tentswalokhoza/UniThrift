@@ -13,6 +13,8 @@ dotenv.config()
 
 import {checkout,updateOrderStatus,getOrderDetails,getUserOrders,addToCart,viewCart,removeFromCart,clearCartController} from './controllers/cartCon.js';
 
+import { postContacts } from './controllers/contactCon.js';
+
 const app = express();
 app.use(cors()); 
 app.use(express.json());
@@ -37,6 +39,8 @@ app.post('/checkout', checkout)
 app.patch('/orders/:orderId/status', updateOrderStatus)
 app.get('/orders/:orderId', getOrderDetails)
 app.get('/users/:userId/orders', getUserOrders)
+
+app.post('/api/contact',postContacts)
 
 // Cart management routes
 app.post('/cart', addToCart)
