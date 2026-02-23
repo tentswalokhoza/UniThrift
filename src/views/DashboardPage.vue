@@ -4,7 +4,7 @@ import NavBar from '@/components/NavBar.vue'
 
 const categories = ['All', 'Jackets', 'Shoes', 'Accessories', 'Pants', 'T-Shirts'];
 
-// resolve local product images (build-time) similar to cataloguePage
+
 const importedImages = import.meta.glob('../assets/product/*', { eager: true, as: 'url' })
 const imageMap = {}
 Object.entries(importedImages).forEach(([path, url]) => {

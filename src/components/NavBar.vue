@@ -47,8 +47,8 @@ const handleLogout = () => {
             <router-link to="/about" class="nav-link about">About</router-link>
           </li>
         </ul>
-        <li class="nav-item" v-if="isLoggedIn">
-  <button @click="handleLogout" class="nav-link btn btn-link">
+     <li class="nav-item" v-if="isLoggedIn">
+  <button @click="handleLogout" class="nav-link btn logout-button">
     Logout
   </button>
 </li>
@@ -65,6 +65,11 @@ const handleLogout = () => {
 <style scoped>
 li{
   margin:0% 10% 0;
+}
+
+.navbar-nav .nav-item,
+.navbar .nav-item {
+  list-style: none;
 }
 
 .nav-search {
@@ -87,5 +92,29 @@ li{
   border-color: #00faab;
   box-shadow: 0 0 8px rgba(0, 250, 171, 0.3);
   background-color: #222;
+}
+
+/* Logout Button Styling */
+.logout-button {
+  background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
+  border: none;
+  color: #0f0f12; 
+  font-weight: 600;
+  padding: 6px 14px;
+  position: relative;
+  right: -120px; 
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.logout-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(0, 250, 171, 0.6);
+}
+
+.logout-button:active {
+  transform: scale(0.97);
 }
 </style>

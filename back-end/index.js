@@ -25,7 +25,6 @@ app.use("/api/auth", authRoutes)
 app.listen(2006, () => {
     console.log('Server running at http://localhost:2006');
 });
-
 app.get('/products',getProducts)
 app.get('/products/dashboard', getDashboardProducts)
 app.get('/topsellers', getTopSellersProducts)
