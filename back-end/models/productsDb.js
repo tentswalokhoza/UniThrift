@@ -1,10 +1,14 @@
 import { pool } from '../config.js'
 
-
-//fetch product data
 export const getProductsDb = async () => {
-    const [rows] = await pool.query('SELECT * FROM products;');
-    return rows;
+  const [rows] = await pool.query(`
+    SELECT 
+      p.*,
+      u.name AS seller_name
+    FROM products p
+    LEFT JOIN users u ON p.seller_id = u.id
+  `)
+  return rows
 }
 
 //fetch only dashboard products

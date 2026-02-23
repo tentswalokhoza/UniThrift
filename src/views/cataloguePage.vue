@@ -21,7 +21,7 @@ const filteredProducts = computed(() => {
   if (!searchQuery.value) return list
   const q = searchQuery.value.toLowerCase()
   return list.filter(p => 
-    p.name.toLowerCase().includes(q) ||
+    p.title.toLowerCase().includes(q) ||
     p.description?.toLowerCase().includes(q) ||
     p.category?.toLowerCase().includes(q)
   )
@@ -133,10 +133,9 @@ onMounted(async()=> {
           
           <div class="product-id"><span>ID: {{ product.product_id }}</span></div>
 
-          <div class="seller-id">
-  <span>Seller ID: {{ product.seller_id }}</span>
-</div>
-
+          <div class="seller-name">
+            <span>Seller: {{ product.seller_name || 'Unknown' }}</span>
+            </div>
 
           
           <div class="title">
@@ -462,17 +461,27 @@ onMounted(async()=> {
 }
 
 .status-available {
-  color: #00faab; /* green for available */
+  color: #00faab; 
   font-weight: 600;
 }
 
 .status-sold {
-  color: #ff4d4f; /* red for sold */
+  color: #ff4d4f;
   font-weight: 600;
 }
 
 .status-removed {
-  color: #888; /* grey for removed */
+  color: #888; 
   font-weight: 600;
+}
+
+
+.seller-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #00faab;
+  margin-bottom: 0.5rem;
+  display: block;
+  text-transform: capitalize;
 }
 </style>

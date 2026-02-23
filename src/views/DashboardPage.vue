@@ -117,7 +117,7 @@ const getCategoryImage = (category) => {
       <div class="hero-overlay">
         <div class="hero-content">
           <h1 class="hero-title">UniThrift Dashboard</h1>
-          <h2>The student market.</h2>
+          <h2>Your student market.</h2>
           <p class="hero-subtitle"></p>
         </div>
       </div>
