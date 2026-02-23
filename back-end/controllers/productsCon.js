@@ -28,6 +28,7 @@ export const getDashboardProducts = async (req, res) => {
 export const postProducts = async (req, res) => {
     try {
         const {
+            seller_id,
             name,
             description,
             price,
@@ -52,6 +53,7 @@ export const postProducts = async (req, res) => {
         }
 
         const result = await postProductsDb(
+            seller_id,
             name,
             description,
             price,

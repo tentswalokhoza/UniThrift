@@ -132,9 +132,15 @@ onMounted(async()=> {
           </div>
           
           <div class="product-id"><span>ID: {{ product.product_id }}</span></div>
+
+          <div class="seller-id">
+  <span>Seller ID: {{ product.seller_id }}</span>
+</div>
+
+
           
           <div class="title">
-            <span>{{ product.name }}</span>
+            <span>{{ product.title }}</span>
           </div>
 
           <div class="description">
@@ -150,7 +156,15 @@ onMounted(async()=> {
           </div>
 
           <div class="stock-info">
-            <span>Stock: {{ product.stock_quantity }}</span>
+            <span>Stock: {{ product.quantity }}</span>
+          </div>
+
+
+
+          <div class="status">
+           <span :class="`status-${product.status}`">
+            Status: {{ product.status }}
+           </span>
           </div>
 
           <div class="created-date">
@@ -445,5 +459,20 @@ onMounted(async()=> {
   .content-wrapper {
     padding: 40px 20px;
   }
+}
+
+.status-available {
+  color: #00faab; /* green for available */
+  font-weight: 600;
+}
+
+.status-sold {
+  color: #ff4d4f; /* red for sold */
+  font-weight: 600;
+}
+
+.status-removed {
+  color: #888; /* grey for removed */
+  font-weight: 600;
 }
 </style>

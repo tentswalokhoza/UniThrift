@@ -15,6 +15,7 @@ export const getDashboardProductsDb = async () => {
 
 //add new product
 export const postProductsDb = async (
+    seller_id,
     name,
     description,
     price,
@@ -25,11 +26,12 @@ export const postProductsDb = async (
 ) => {
     const query = `
         INSERT INTO products
-        (name, description, price, size, category, image_url, stock_quantity)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (seller_id,name, description, price, size, category, image_url, stock_quantity)
+        VALUES (?,?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [result] = await pool.query(query, [
+        seller_id,
         name,
         description,
         price,
