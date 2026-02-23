@@ -40,7 +40,7 @@ app.patch('/orders/:orderId/status', updateOrderStatus)
 app.get('/orders/:orderId', getOrderDetails)
 app.get('/users/:userId/orders', getUserOrders)
 
-app.post('/api/contact',postContacts)
+app.post('/contact',postContacts)
 
 // Cart management routes
 app.post('/cart', addToCart)

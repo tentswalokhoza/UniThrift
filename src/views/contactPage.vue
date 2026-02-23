@@ -1,17 +1,57 @@
 <script setup>
-import { ref } from "vue";
+import { ref , onMounted  } from "vue";
 import NavBar from '@/components/NavBar.vue'
 
-const formData = ref({
-  name: '',
-  email: '',
-  subject: '',
-  message: ''
-})
 
-const handleSubmit = () => {
-  console.log('Form submitted:', formData.value)
-  formData.value = { name: '', email: '', subject: '', message: '' }
+
+// const formData = ref({
+//   name: '',
+//   email: '',
+//   subject: '',
+//   message: ''
+// })
+
+// const handleSubmit = () => {
+//   console.log('Form submitted:', formData.value)
+//   formData.value = { name: '', email: '', subject: '', message: '' }
+// }
+
+const submitContact = async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const subject = document.getElementById('subject').value.trim();
+  const message = document.getElementById('message').value.trim();
+
+  try {
+    const res = await fetch('http://localhost:2006/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        email,
+        subject,
+        message
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to submit contact form');
+    }
+
+    alert('Contact form submitted successfully');
+
+    // Clear inputs after success
+    document.getElementById('name').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('subject').value = '';
+    document.getElementById('message').value = '';
+
+  } catch (err) {
+    console.error(err);
+    alert('Submission failed');
+  }
 }
 </script>
 
@@ -52,22 +92,22 @@ const handleSubmit = () => {
         </div>
       </div>
 
-      <form class="contact-form" @submit.prevent="handleSubmit">
+      <form class="contact-form" @submit="submitContact">
         <div class="form-group">
           <label for="name">Name</label>
-          <input v-model="formData.name" type="text" id="name" required>
+          <input  type="text" id="name" placeholder="Enter Name"  required>
         </div>
         <div class="form-group">
           <label for="email">Email</label>
-          <input v-model="formData.email" type="email" id="email" required>
+          <input type="email" id="email" placeholder="Enter Email" required>
         </div>
         <div class="form-group">
           <label for="subject">Subject</label>
-          <input v-model="formData.subject" type="text" id="subject" required>
+          <input type="text" id="subject" placeholder="Enter subject" required>
         </div>
         <div class="form-group">
           <label for="message">Message</label>
-          <textarea v-model="formData.message" id="message" rows="5" required></textarea>
+          <textarea  id="message" rows="5" placeholder="send a message " required></textarea>
         </div>
         <button type="submit" class="submit-btn">Send Message</button>
       </form>
