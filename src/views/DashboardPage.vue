@@ -6,7 +6,7 @@ import.meta.env.VITE_GOOGLE_MAPS_KEY
 console.log(import.meta.env.VITE_GOOGLE_MAPS_KEY)
 const mapDiv = ref(null)
 
-// Load Google Maps API dynamically
+
 const loadGoogleMaps = () => {
   return new Promise((resolve, reject) => {
     if (window.google?.maps) {
@@ -15,7 +15,7 @@ const loadGoogleMaps = () => {
     }
 
     const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}`
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}&libraries=marker`
     script.async = true
     script.defer = true
 
@@ -30,30 +30,86 @@ onMounted(async () => {
   try {
     const google = await loadGoogleMaps()
 
-    // Create the map centered on UWC
     const map = new google.maps.Map(mapDiv.value, {
-      center: { lat: -33.9170, lng: 18.6200 }, 
-      zoom: 16
+      center: { lat: -33.9335, lng: 18.6280 },
+      zoom: 16,
+      mapId: 'DEMO_MAP_ID' 
     })
 
-    // UWC campus marker
+    //  create a styled HTML marker element
+    const makeMarkerEl = (label, sublabel, color, border, textColor) => {
+      const el = document.createElement('div')
+      el.style.cssText = 'display:flex; flex-direction:column; align-items:center; cursor:pointer;'
+      el.innerHTML = `
+        <div style="
+          background:${color};
+          color:${textColor};
+          padding:6px 12px;
+          border-radius:10px;
+          font-weight:700;
+          font-size:13px;
+          font-family:sans-serif;
+          text-align:center;
+          box-shadow:0 4px 12px rgba(0,0,0,0.4);
+          border:2px solid ${border};
+          white-space:nowrap;
+          line-height:1.3;
+        ">
+          ${label}
+          ${sublabel ? `<div style="font-size:10px;font-weight:500;opacity:0.85;margin-top:2px;">${sublabel}</div>` : ''}
+        </div>
+        <div style="
+          width:0; height:0;
+          border-left:7px solid transparent;
+          border-right:7px solid transparent;
+          border-top:10px solid ${border};
+        "></div>
+      `
+      return el
+    }
+
+    // UWC campus pin
     new google.maps.marker.AdvancedMarkerElement({
-      position: { lat: -33.9170, lng: 18.6200},
+      position: { lat: -33.9335, lng: 18.6280 },
       map,
       title: 'UWC Campus',
-      content: `<div style="background:white;padding:5px 10px;border:1px solid black;border-radius:5px;font-weight:bold;">
-                  UWC Campus
-                </div>`
+      content: makeMarkerEl('🏫 UWC Campus', null, '#ffffff', '#cccccc', '#0f0f12')
     })
 
-    // Fictional drop-off point
-    new google.maps.marker.AdvancedMarkerElement({
-      position: { lat: -33.9160, lng: 18.6220 }, 
-      map,
-      title: 'Drop-off Point 1',
-      content: `<div style="background:#ffe0b2;padding:5px 10px;border:1px solid #ff9800;border-radius:5px;font-weight:bold;color:#ff5722;">
-                  Drop-off Point 1
-                </div>`
+    const dropOffPoints = [
+      {
+        position: { lat: -33.9318, lng: 18.6295 },
+        label: '📦 Drop-off A',
+        sublabel: 'Student Centre Entrance',
+        color: '#00faab',
+        border: '#00b87a',
+        textColor: '#0f0f12'
+      },
+      {
+        position: { lat: -33.9352, lng: 18.6261 },
+        label: '📦 Drop-off B',
+        sublabel: 'Main Library Steps',
+        color: '#7c3aed',
+        border: '#5b21b6',
+        textColor: '#ffffff'
+      },
+      {
+        position: { lat: -33.9345, lng: 18.6312 },
+        label: '📦 Drop-off C',
+        sublabel: 'Residence Gate 3',
+        color: '#f59e0b',
+        border: '#b45309',
+        textColor: '#0f0f12'
+      }
+    ]
+
+    dropOffPoints.forEach(({ position, label, sublabel, color, border, textColor }) => {
+      new google.maps.marker.AdvancedMarkerElement({
+        position,
+        map,
+        title: label,
+        content: makeMarkerEl(label, sublabel, color, border, textColor)
+      })
     })
 
   } catch (err) {
@@ -115,7 +171,6 @@ const getCategoryImage = (category) => {
     'T-Shirts': getImageUrl('graphic-tee.png') || 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f'
   }
 
-  // collect candidate products that have an image
   const candidates = allProducts.value
     .map(p => ({
       ...p,
@@ -124,15 +179,12 @@ const getCategoryImage = (category) => {
     .filter(p => p && p.image)
 
   if (candidates.length && catNorm) {
-    // 1) exact category match
     const exact = candidates.find(p => normalize(p.category) === catNorm)
     if (exact) return getImageUrl(exact.image) || exact.image
 
-    // 2) partial contains match (either direction)
     const partial = candidates.find(p => normalize(p.category).includes(catNorm) || catNorm.includes(normalize(p.category)))
     if (partial) return getImageUrl(partial.image) || partial.image
 
-    // 3) try matching by product name tokens for specific requests
     const specialTokens = {
       Shoes: ['converse', 'sneaker', 'converse shoe'],
       Pants: ['bootleg', 'jeans', 'trouser', 'pants'],
@@ -147,7 +199,6 @@ const getCategoryImage = (category) => {
       if (byName) return getImageUrl(byName.image) || byName.image
     }
 
-    // 4) token overlap scoring on category string
     const catTokens = new Set(catNorm.split(' ').filter(Boolean))
     let best = { score: 0, image: null }
     for (const p of candidates) {
@@ -158,7 +209,6 @@ const getCategoryImage = (category) => {
     }
     if (best.image) return getImageUrl(best.image) || best.image
 
-    // 5) prefer category fallback before generic first image
     if (fallbackMap[category]) return fallbackMap[category]
     if (candidates.length) return getImageUrl(candidates[0].image) || candidates[0].image
   }
