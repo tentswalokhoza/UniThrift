@@ -12,140 +12,152 @@ import {
     removeFromCartDb
 } from '../models/cartDb.js';
 
-// Handle checkout process
-export const checkout = async (req, res) => {
+
+// ================= CHECKOUT =================
+export const checkout = async (req, res, next) => {
     try {
         const { userId } = req.body;
 
         if (!userId) {
-            return res.status(400).json({ error: 'User ID is required' });
+            const error = new Error('User ID is required');
+            error.status = 400;
+            throw error;
         }
 
-        // Step 1: Get cart items
         const cartItems = await getCartItemsDb(userId);
 
-        if (cartItems.length === 0) {
-            return res.status(400).json({ error: 'Cart is empty' });
+        if (!cartItems || cartItems.length === 0) {
+            const error = new Error('Cart is empty');
+            error.status = 400;
+            throw error;
         }
 
-        // Step 2: Calculate total price
         const totalAmount = calculateTotalPrice(cartItems);
 
-        // Step 3: Insert into orders table
         const orderResult = await createOrderDb(userId, totalAmount);
         const orderId = orderResult.insertId;
 
-        // Step 4: Insert into order_items table
         await createOrderItemsDb(orderId, cartItems);
-
-        // Step 5: Clear cart
         await clearCartDb(userId);
 
         res.json({
+            success: true,
             message: 'Checkout successful',
-            orderId: orderId,
-            totalAmount: totalAmount,
+            orderId,
+            totalAmount,
             itemCount: cartItems.length
         });
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Checkout failed' });
+    } catch (error) {
+        next(error);
     }
 };
 
-// Update order payment status
-export const updateOrderStatus = async (req, res) => {
+
+// ================= UPDATE ORDER STATUS =================
+export const updateOrderStatus = async (req, res, next) => {
     try {
         const { orderId, paymentStatus } = req.body;
 
         if (!orderId || !paymentStatus) {
-            return res.status(400).json({ error: 'Order ID and payment status are required' });
+            const error = new Error('Order ID and payment status are required');
+            error.status = 400;
+            throw error;
         }
 
-        // Check if order exists
         const order = await getOrderDb(orderId);
         if (!order) {
-            return res.status(404).json({ error: 'Order not found' });
+            const error = new Error('Order not found');
+            error.status = 404;
+            throw error;
         }
 
-        // Update status
         await updateOrderStatusDb(orderId, paymentStatus);
 
         res.json({
+            success: true,
             message: 'Order status updated successfully',
-            orderId: orderId,
-            paymentStatus: paymentStatus
+            orderId,
+            paymentStatus
         });
 
-    } catch (err) {
-        console.error(err);
-        if (err.message === 'Invalid payment status') {
-            return res.status(400).json({ error: err.message });
-        }
-        res.status(500).json({ error: 'Failed to update order status' });
+    } catch (error) {
+        next(error);
     }
 };
 
-// Get order details with items
-export const getOrderDetails = async (req, res) => {
+
+// ================= GET ORDER DETAILS =================
+export const getOrderDetails = async (req, res, next) => {
     try {
         const { orderId } = req.params;
 
         if (!orderId) {
-            return res.status(400).json({ error: 'Order ID is required' });
+            const error = new Error('Order ID is required');
+            error.status = 400;
+            throw error;
         }
 
         const order = await getOrderDb(orderId);
         if (!order) {
-            return res.status(404).json({ error: 'Order not found' });
+            const error = new Error('Order not found');
+            error.status = 404;
+            throw error;
         }
 
         const orderItems = await getOrderItemsDb(orderId);
 
         res.json({
-            order: order,
+            success: true,
+            order,
             items: orderItems
         });
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to fetch order details' });
+    } catch (error) {
+        next(error);
     }
 };
 
-// Get all orders for a user
-export const getUserOrders = async (req, res) => {
+
+// ================= GET USER ORDERS =================
+export const getUserOrders = async (req, res, next) => {
     try {
         const { userId } = req.params;
 
         if (!userId) {
-            return res.status(400).json({ error: 'User ID is required' });
+            const error = new Error('User ID is required');
+            error.status = 400;
+            throw error;
         }
 
         const orders = await getUserOrdersDb(userId);
 
         res.json({
-            orders: orders
+            success: true,
+            orders
         });
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to fetch user orders' });
+    } catch (error) {
+        next(error);
     }
 };
 
-// Add item to cart
-export const addToCart = async (req, res) => {
+
+// ================= ADD TO CART =================
+export const addToCart = async (req, res, next) => {
     try {
         const { userId, productId, quantity } = req.body;
 
         if (!userId || !productId || !quantity) {
-            return res.status(400).json({ error: 'User ID, product ID, and quantity are required' });
+            const error = new Error('User ID, product ID, and quantity are required');
+            error.status = 400;
+            throw error;
         }
 
         if (quantity <= 0) {
-            return res.status(400).json({ error: 'Quantity must be greater than 0' });
+            const error = new Error('Quantity must be greater than 0');
+            error.status = 400;
+            throw error;
         }
 
         await addToCartDb(userId, productId, quantity);
@@ -154,49 +166,55 @@ export const addToCart = async (req, res) => {
         const totalPrice = calculateTotalPrice(updatedCart);
 
         res.json({
+            success: true,
             message: 'Item added to cart successfully',
             cart: updatedCart,
-            totalPrice: totalPrice
+            totalPrice
         });
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to add item to cart' });
+    } catch (error) {
+        next(error);
     }
 };
 
-// View cart
-export const viewCart = async (req, res) => {
+
+// ================= VIEW CART =================
+export const viewCart = async (req, res, next) => {
     try {
         const { userId } = req.params;
 
         if (!userId) {
-            return res.status(400).json({ error: 'User ID is required' });
+            const error = new Error('User ID is required');
+            error.status = 400;
+            throw error;
         }
 
         const cartItems = await getCartItemsDb(userId);
         const totalPrice = calculateTotalPrice(cartItems);
 
         res.json({
+            success: true,
             items: cartItems,
             itemCount: cartItems.length,
-            totalPrice: totalPrice
+            totalPrice
         });
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to fetch cart' });
+    } catch (error) {
+        next(error);
     }
 };
 
-// Remove item from cart
-export const removeFromCart = async (req, res) => {
+
+// ================= REMOVE FROM CART =================
+export const removeFromCart = async (req, res, next) => {
     try {
         const { cartId } = req.params;
         const { userId } = req.body;
 
         if (!cartId || !userId) {
-            return res.status(400).json({ error: 'Cart ID and User ID are required' });
+            const error = new Error('Cart ID and User ID are required');
+            error.status = 400;
+            throw error;
         }
 
         await removeFromCartDb(cartId);
@@ -205,34 +223,37 @@ export const removeFromCart = async (req, res) => {
         const totalPrice = calculateTotalPrice(updatedCart);
 
         res.json({
+            success: true,
             message: 'Item removed from cart successfully',
             cart: updatedCart,
-            totalPrice: totalPrice
+            totalPrice
         });
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to remove item from cart' });
+    } catch (error) {
+        next(error);
     }
 };
 
-// Clear entire cart
-export const clearCartController = async (req, res) => {
+
+// ================= CLEAR CART =================
+export const clearCartController = async (req, res, next) => {
     try {
         const { userId } = req.params;
 
         if (!userId) {
-            return res.status(400).json({ error: 'User ID is required' });
+            const error = new Error('User ID is required');
+            error.status = 400;
+            throw error;
         }
 
         await clearCartDb(userId);
 
         res.json({
+            success: true,
             message: 'Cart cleared successfully'
         });
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to clear cart' });
+    } catch (error) {
+        next(error);
     }
 };
