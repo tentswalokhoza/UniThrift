@@ -142,7 +142,7 @@ onMounted(async () => {
           >
             <!-- Product Image -->
             <div class="image_container">
-              <img
+               <img
                 :src="getImage(product.image_url || product.image)"
                 :alt="`Photo of ${product.title}`"
               />

@@ -1,6 +1,66 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import NavBar from '@/components/NavBar.vue'
+import.meta.env.VITE_GOOGLE_MAPS_KEY
+
+console.log(import.meta.env.VITE_GOOGLE_MAPS_KEY)
+const mapDiv = ref(null)
+
+// Load Google Maps API dynamically
+const loadGoogleMaps = () => {
+  return new Promise((resolve, reject) => {
+    if (window.google?.maps) {
+      resolve(window.google)
+      return
+    }
+
+    const script = document.createElement('script')
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_KEY}`
+    script.async = true
+    script.defer = true
+
+    script.onload = () => resolve(window.google)
+    script.onerror = (err) => reject(err)
+
+    document.head.appendChild(script)
+  })
+}
+
+onMounted(async () => {
+  try {
+    const google = await loadGoogleMaps()
+
+    // Create the map centered on UWC
+    const map = new google.maps.Map(mapDiv.value, {
+      center: { lat: -33.9170, lng: 18.6200 }, 
+      zoom: 16
+    })
+
+    // UWC campus marker
+    new google.maps.marker.AdvancedMarkerElement({
+      position: { lat: -33.9170, lng: 18.6200},
+      map,
+      title: 'UWC Campus',
+      content: `<div style="background:white;padding:5px 10px;border:1px solid black;border-radius:5px;font-weight:bold;">
+                  UWC Campus
+                </div>`
+    })
+
+    // Fictional drop-off point
+    new google.maps.marker.AdvancedMarkerElement({
+      position: { lat: -33.9160, lng: 18.6220 }, 
+      map,
+      title: 'Drop-off Point 1',
+      content: `<div style="background:#ffe0b2;padding:5px 10px;border:1px solid #ff9800;border-radius:5px;font-weight:bold;color:#ff5722;">
+                  Drop-off Point 1
+                </div>`
+    })
+
+  } catch (err) {
+    console.error('Failed to load Google Maps:', err)
+  }
+})
+
 
 const categories = ['All', 'Jackets', 'Shoes', 'Accessories', 'Pants', 'T-Shirts'];
 
@@ -128,7 +188,7 @@ const getCategoryImage = (category) => {
       <h2 class="section-title">Campus Map</h2>
     </div>
 
-    <div class="map-container" id="map"></div>
+    <div ref="mapDiv" class="map-container"></div>
 
     <!-- BROWSE SECTION -->
     <div class="content-wrapper">
@@ -213,7 +273,7 @@ const getCategoryImage = (category) => {
 
 
 .map-container {
-  height: 400px;
+  height: 600px;
   background-color: #1f1f23;
   margin: 20px;
   border-radius: 12px;
