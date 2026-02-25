@@ -44,9 +44,6 @@ const handleLogout = () => {
             <router-link to="/contact" class="nav-link contact" >Contact</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/review" class="nav-link review">Reviews</router-link>
-          </li>
-          <li class="nav-item">
             <router-link to="/about" class="nav-link about">About</router-link>
           </li>
           
