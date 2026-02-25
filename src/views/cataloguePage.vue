@@ -39,7 +39,7 @@ const toggleCard = (id) => {
 
 const isExpanded = (id) => expandedCards.value.has(id)
 
-// Build a map of images found under src/assets/product at build time
+// mapping that fetches the images from products folder
 const importedImages = import.meta.glob('../assets/product/*', { eager: true, as: 'url' })
 const imageMap = {}
 Object.entries(importedImages).forEach(([path, url]) => {
@@ -119,7 +119,7 @@ onMounted(async () => {
 
 <template>
   <NavBar />
-
+<!-- banner -->
   <div class="catalogue-container">
     <div class="hero-section">
       <div class="hero-content">
@@ -128,6 +128,7 @@ onMounted(async () => {
       </div>
     </div>
 
+    <!-- catalogue -->
     <div class="content-wrapper">
       <div class="products-row">
         <div
@@ -148,13 +149,13 @@ onMounted(async () => {
               />
             </div>
 
-            <!-- Always visible: title + price -->
+            
             <div class="card-minimal">
               <div class="title">{{ product.title }}</div>
               <div class="price">{{ formatCurrency(product.price) }}</div>
             </div>
 
-            <!-- Expanded details -->
+            <!-- expanded details -->
             <div class="card-details-wrapper" :class="{ visible: isExpanded(product.product_id) }">
               <div class="card-details-inner">
                 <div class="details-grid">
@@ -210,7 +211,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <!-- Expand chevron -->
+         
             <div class="expand-hint">
               <span class="chevron" :class="{ flipped: isExpanded(product.product_id) }">&#8964;</span>
             </div>
@@ -228,7 +229,7 @@ onMounted(async () => {
   color: #d9d9d9;
 }
 
-/* Hero Section */
+
 .hero-section {
   background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
   padding: 80px 20px;
@@ -356,7 +357,7 @@ onMounted(async () => {
   color: #b0b0b0;
 }
 
-/* Expand/collapse slide using grid trick */
+
 .card-details-wrapper {
   display: grid;
   grid-template-rows: 0fr;
@@ -377,7 +378,7 @@ onMounted(async () => {
   padding: 0.25rem 1rem 1rem;
 }
 
-/* Details grid */
+
 .details-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -419,11 +420,10 @@ onMounted(async () => {
   margin-bottom: 0.85rem;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
   overflow: hidden;
 }
 
-/* Status colours */
+
 .status-available {
   color: #00faab;
   font-weight: 600;
@@ -439,7 +439,7 @@ onMounted(async () => {
   font-weight: 600;
 }
 
-/* Cart button */
+
 .action {
   margin-top: 0.25rem;
 }
@@ -476,7 +476,7 @@ onMounted(async () => {
   flex-shrink: 0;
 }
 
-/* Chevron expand hint */
+
 .expand-hint {
   text-align: center;
   padding: 0.3rem 0 0.45rem;
@@ -499,13 +499,12 @@ onMounted(async () => {
   transform: rotate(180deg);
 }
 
-/* Animations */
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .hero-title    { font-size: 2rem; }
   .hero-subtitle { font-size: 1rem; }

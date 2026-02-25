@@ -5,6 +5,7 @@ import cataloguePage from '@/views/cataloguePage.vue';
 import sellerPage from '@/views/sellerPage.vue';
 import ContactPage from '@/views/contactPage.vue';
 import AboutPage from '@/views/AboutPage.vue';
+import ReviewsPage from '@/views/reviewsPage.vue';
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: '/contact',
     name: 'contact',
     component: ContactPage
+  },
+  {
+    path:'/review',
+    name: 'review',
+    component: ReviewsPage
   },
   {
     path: '/about',

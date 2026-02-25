@@ -44,6 +44,9 @@ const handleLogout = () => {
             <router-link to="/contact" class="nav-link contact" >Contact</router-link>
           </li>
           <li class="nav-item">
+            <router-link to="/review" class="nav-link review">Review</router-link>
+          </li>
+          <li class="nav-item">
             <router-link to="/about" class="nav-link about">About</router-link>
           </li>
         </ul>
@@ -94,7 +97,7 @@ li{
   background-color: #222;
 }
 
-/* Logout Button Styling */
+
 .logout-button {
   background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
   border: none;

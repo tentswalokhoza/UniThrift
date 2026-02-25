@@ -36,7 +36,7 @@ onMounted(async () => {
       mapId: 'DEMO_MAP_ID' 
     })
 
-    //  create a styled HTML marker element
+    //  maarker styling
     const makeMarkerEl = (label, sublabel, color, border, textColor) => {
       const el = document.createElement('div')
       el.style.cssText = 'display:flex; flex-direction:column; align-items:center; cursor:pointer;'
@@ -118,9 +118,10 @@ onMounted(async () => {
 })
 
 
+//category tabs
 const categories = ['All', 'Jackets', 'Shoes', 'Accessories', 'Pants', 'T-Shirts'];
 
-
+//reusing products pictures for the category tab cards
 const importedImages = import.meta.glob('../assets/product/*', { eager: true, as: 'url' })
 const imageMap = {}
 Object.entries(importedImages).forEach(([path, url]) => {
