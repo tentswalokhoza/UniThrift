@@ -3,9 +3,14 @@ import { ref, onMounted, computed } from "vue";
 import { useRoute } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
 import { searchQuery } from '@/composables/useSearch';
+import { getProductImage } from '@/composables/useProductImages'
+import { useSession } from '@/composables/useSession'
 
 const products = ref([])
 const route = useRoute()
+const { userId } = useSession()
+const cartNotice = ref('')
+const addedMap = ref({})
 
 const filteredProducts = computed(() => {
   let list = products.value
@@ -39,7 +44,7 @@ const toggleCard = (id) => {
 
 const isExpanded = (id) => expandedCards.value.has(id)
 
-// mapping that fetches the images from products folder
+// Build a map of images found under src/assets/product at build time
 const importedImages = import.meta.glob('../assets/product/*', { eager: true, as: 'url' })
 const imageMap = {}
 Object.entries(importedImages).forEach(([path, url]) => {
@@ -105,6 +110,37 @@ const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(amount)
 }
 
+const addToCart = async (product) => {
+  if (!userId) {
+    alert('Please sign in to add items to your cart.')
+    return
+  }
+  try {
+    const res = await fetch('http://localhost:2006/cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId,
+        productId: product.product_id,
+        quantity: 1
+      })
+    })
+    if (!res.ok) throw new Error(res.statusText)
+    cartNotice.value = `${product.title || 'Item'} added to cart`
+    setTimeout(() => { cartNotice.value = '' }, 2000)
+    addedMap.value = { ...addedMap.value, [product.product_id]: true }
+    setTimeout(() => {
+      const next = { ...addedMap.value }
+      delete next[product.product_id]
+      addedMap.value = next
+    }, 2000)
+  } catch (err) {
+    console.error('Failed to add to cart', err)
+    cartNotice.value = 'Failed to add to cart'
+    setTimeout(() => { cartNotice.value = '' }, 2000)
+  }
+}
+
 onMounted(async () => {
   try {
     const res = await fetch('http://localhost:2006/products')
@@ -121,6 +157,7 @@ onMounted(async () => {
   <NavBar />
 <!-- banner -->
   <div class="catalogue-container">
+    <div v-if="cartNotice" class="toast">{{ cartNotice }}</div>
     <div class="hero-section">
       <div class="hero-content">
         <h1 class="hero-title">Catalogue</h1>
@@ -190,7 +227,7 @@ onMounted(async () => {
                 </div>
 
                 <div class="action" @click.stop>
-                  <button class="cart-button">
+                  <button class="cart-button" @click.stop="addToCart(product)">
                     <svg
                       class="cart-icon"
                       stroke="currentColor"
@@ -205,7 +242,7 @@ onMounted(async () => {
                         stroke-linecap="round"
                       />
                     </svg>
-                    <span>Add to cart</span>
+                    <span>{{ addedMap[product.product_id] ? 'Added' : 'Add to cart' }}</span>
                   </button>
                 </div>
               </div>
@@ -227,6 +264,20 @@ onMounted(async () => {
   width: 100%;
   background-color: #0f0f12;
   color: #d9d9d9;
+}
+
+.toast {
+  position: fixed;
+  top: 90px;
+  right: 24px;
+  z-index: 50;
+  background: rgba(0, 250, 171, 0.12);
+  color: #00faab;
+  border: 1px solid rgba(0, 250, 171, 0.4);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
 }
 
 

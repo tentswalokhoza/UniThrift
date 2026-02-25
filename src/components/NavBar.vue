@@ -38,6 +38,9 @@ const handleLogout = () => {
                 <router-link to="/catalogue" class="nav-link catalogue">Catalogue</router-link>
           </li>
           <li class="nav-item">
+            <router-link to="/cart" class="nav-link cart">Cart</router-link>
+          </li>
+          <li class="nav-item">
               <router-link to="/seller" class="nav-link sellerReview" >Seller </router-link>
           </li>
           <li class="nav-item">

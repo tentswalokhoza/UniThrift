@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import NavBar from '@/components/NavBar.vue'
+import { getProductImage } from '@/composables/useProductImages'
 import.meta.env.VITE_GOOGLE_MAPS_KEY
 
 console.log(import.meta.env.VITE_GOOGLE_MAPS_KEY)
@@ -121,7 +122,7 @@ onMounted(async () => {
 //category tabs
 const categories = ['All', 'Jackets', 'Shoes', 'Accessories', 'Pants', 'T-Shirts'];
 
-//reusing products pictures for the category tab cards
+
 const importedImages = import.meta.glob('../assets/product/*', { eager: true, as: 'url' })
 const imageMap = {}
 Object.entries(importedImages).forEach(([path, url]) => {
