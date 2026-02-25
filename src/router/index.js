@@ -42,6 +42,11 @@ const routes = [
     component: ContactPage
   },
   {
+    path:'/review',
+    name: 'review',
+    component: ReviewsPage
+  },
+  {
     path: '/about',
     name: 'about',
     component: AboutPage

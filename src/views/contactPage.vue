@@ -3,7 +3,7 @@ import { ref  } from "vue";
 import NavBar from '@/components/NavBar.vue'
 
 
-
+//ignore this
 // const formData = ref({
 //   name: '',
 //   email: '',

@@ -37,7 +37,7 @@ onMounted(async () => {
       mapId: 'DEMO_MAP_ID' 
     })
 
-    //  create a styled HTML marker element
+    //  maarker styling
     const makeMarkerEl = (label, sublabel, color, border, textColor) => {
       const el = document.createElement('div')
       el.style.cssText = 'display:flex; flex-direction:column; align-items:center; cursor:pointer;'
@@ -119,10 +119,31 @@ onMounted(async () => {
 })
 
 
+//category tabs
 const categories = ['All', 'Jackets', 'Shoes', 'Accessories', 'Pants', 'T-Shirts'];
 
 
-const getImageUrl = (val) => getProductImage(val) || ''
+const importedImages = import.meta.glob('../assets/product/*', { eager: true, as: 'url' })
+const imageMap = {}
+Object.entries(importedImages).forEach(([path, url]) => {
+  const parts = path.split('/')
+  const name = parts[parts.length - 1]
+  imageMap[name] = url
+})
+
+const getImageUrl = (val) => {
+  if (!val) return ''
+  if (typeof val !== 'string') return ''
+  if (/^https?:\/\//.test(val)) return val
+  const key = val.replace(/^\//, '')
+  if (imageMap[key]) return imageMap[key]
+  try { if (imageMap[decodeURIComponent(val)]) return imageMap[decodeURIComponent(val)] } catch {}
+  const lower = val.toLowerCase()
+  for (const [name, url] of Object.entries(imageMap)) {
+    if (name.toLowerCase().includes(lower) || lower.includes(name.toLowerCase())) return url
+  }
+  return ''
+}
 
 const allProducts = ref([])
 

@@ -5,17 +5,17 @@ import {
     patchProductsDb 
 } from "../models/productsDb.js";
 
-// ================= GET ALL PRODUCTS =================
+//  fetch products
 export const getProducts = async (req, res, next) => {
     try {
         const data = await getProductsDb();
         res.json(data);
     } catch (err) {
-        next(err); // pass to global error handler
+        next(err); 
     }
 };
 
-// ================= GET DASHBOARD PRODUCTS =================
+// fetch for dash
 export const getDashboardProducts = async (req, res, next) => {
     try {
         const data = await getDashboardProductsDb();
@@ -25,7 +25,7 @@ export const getDashboardProducts = async (req, res, next) => {
     }
 };
 
-// ================= ADD PRODUCT =================
+//  add
 export const postProducts = async (req, res, next) => {
     try {
         const {
@@ -73,7 +73,7 @@ export const postProducts = async (req, res, next) => {
     }
 };
 
-// ================= UPDATE PRODUCT =================
+//  update
 export const patchProducts = async (req, res, next) => {
     try {
         const {

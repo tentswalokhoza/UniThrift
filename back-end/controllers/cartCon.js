@@ -13,7 +13,7 @@ import {
 } from '../models/cartDb.js';
 
 
-// ================= CHECKOUT =================
+//  CHECKOUT
 export const checkout = async (req, res, next) => {
     try {
         const { userId } = req.body;
