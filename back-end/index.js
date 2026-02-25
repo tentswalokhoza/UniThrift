@@ -12,6 +12,7 @@ import { getSeller, getTopSellersProducts } from './controllers/sellerCon.js';
 dotenv.config()
 
 import {checkout,updateOrderStatus,getOrderDetails,getUserOrders,addToCart,viewCart,removeFromCart,clearCartController} from './controllers/cartCon.js';
+import { processPayment } from './controllers/paymentCon.js';
 
 import { postContacts } from './controllers/contactCon.js';
 
@@ -46,3 +47,4 @@ app.post('/cart', addToCart)
 app.get('/cart/:userId', viewCart)
 app.delete('/cart/:cartId', removeFromCart)
 app.delete('/cart-clear/:userId', clearCartController)
+app.post('/payment/process', processPayment)

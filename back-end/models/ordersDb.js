@@ -101,7 +101,7 @@ export const getOrderItemsDb = async (order_id) => {
         if (!order_id) throw new Error('Order ID is required')
 
         const query = `
-            SELECT oi.*, p.name, p.price as product_price
+            SELECT oi.*, p.title AS name, p.price as product_price
             FROM order_items oi
             JOIN products p ON oi.product_id = p.product_id
             WHERE oi.order_id = ?

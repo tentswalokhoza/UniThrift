@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import NavBar from '@/components/NavBar.vue'
+import { getProductImage } from '@/composables/useProductImages'
 import.meta.env.VITE_GOOGLE_MAPS_KEY
 
 console.log(import.meta.env.VITE_GOOGLE_MAPS_KEY)
@@ -121,27 +122,7 @@ onMounted(async () => {
 const categories = ['All', 'Jackets', 'Shoes', 'Accessories', 'Pants', 'T-Shirts'];
 
 
-const importedImages = import.meta.glob('../assets/product/*', { eager: true, as: 'url' })
-const imageMap = {}
-Object.entries(importedImages).forEach(([path, url]) => {
-  const parts = path.split('/')
-  const name = parts[parts.length - 1]
-  imageMap[name] = url
-})
-
-const getImageUrl = (val) => {
-  if (!val) return ''
-  if (typeof val !== 'string') return ''
-  if (/^https?:\/\//.test(val)) return val
-  const key = val.replace(/^\//, '')
-  if (imageMap[key]) return imageMap[key]
-  try { if (imageMap[decodeURIComponent(val)]) return imageMap[decodeURIComponent(val)] } catch {}
-  const lower = val.toLowerCase()
-  for (const [name, url] of Object.entries(imageMap)) {
-    if (name.toLowerCase().includes(lower) || lower.includes(name.toLowerCase())) return url
-  }
-  return ''
-}
+const getImageUrl = (val) => getProductImage(val) || ''
 
 const allProducts = ref([])
 
