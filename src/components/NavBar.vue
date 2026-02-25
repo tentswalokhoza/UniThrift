@@ -49,6 +49,7 @@ const handleLogout = () => {
           <li class="nav-item">
             <router-link to="/about" class="nav-link about">About</router-link>
           </li>
+          
         </ul>
      <li class="nav-item" v-if="isLoggedIn">
   <button @click="handleLogout" class="nav-link btn logout-button">
