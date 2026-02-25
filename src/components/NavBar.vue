@@ -70,35 +70,30 @@ const handleLogout = () => {
   </nav>
 </template>
 <style scoped>
-li{
-  margin:0% 10% 0;
+.navbar-nav {
+  gap: 0.5rem;   
 }
 
-.navbar-nav .nav-item,
-.navbar .nav-item {
+.navbar-nav .nav-item {
   list-style: none;
 }
 
+.navbar-nav .nav-link {
+  padding: 6px 10px;
+  font-size: 0.95rem;
+}
+
 .nav-search {
-  padding: 8px 12px;
-  border: 1px solid #00faab;
-  border-radius: 0.5rem;
-  background-color: #1a1a1a;
-  color: #d9d9d9;
-  font-size: 0.9rem;
-  outline: none;
-  transition: all 0.3s ease;
-  min-width: 200px;
+  padding: 6px 10px;
+  min-width: 160px;
+  margin-left: 1rem;   
 }
 
-.nav-search::placeholder {
-  color: #888;
-}
-
-.nav-search:focus {
-  border-color: #00faab;
-  box-shadow: 0 0 8px rgba(0, 250, 171, 0.3);
-  background-color: #222;
+.logout-button {
+  margin-left: 1rem;  
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  right: 0;           
 }
 
 
@@ -109,7 +104,7 @@ li{
   font-weight: 600;
   padding: 6px 14px;
   position: relative;
-  right: -120px; 
+  right: -0px; 
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.3s ease;

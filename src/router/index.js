@@ -9,6 +9,7 @@ import CartPage from '@/views/CartPage.vue';
 import CheckoutPage from '@/views/CheckoutPage.vue';
 import PaymentPage from '@/views/PaymentPage.vue';
 import ConfirmationPage from '@/views/ConfirmationPage.vue';
+import ReviewsPage from '@/views/reviewsPage.vue';
 
 const routes = [
   {
