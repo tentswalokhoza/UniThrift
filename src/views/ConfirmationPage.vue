@@ -52,6 +52,7 @@ onMounted(fetchOrder)
 
   <div class="page">
     <div class="hero">
+      <p class="eyebrow">Order Complete</p>
       <h1>Order Confirmed</h1>
       <p>Thanks for shopping with UniThrift.</p>
     </div>
@@ -100,16 +101,37 @@ onMounted(fetchOrder)
 }
 
 .hero {
-  background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
-  color: #0f0f12;
-  padding: 60px 20px;
+  max-width: 1220px;
+  margin: 20px auto 0;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 48%),
+    linear-gradient(125deg, #00faab 0%, #00c896 56%, #009e8f 100%);
+  color: #041311;
+  padding: 34px 28px;
+  border: 1px solid rgba(0, 250, 171, 0.24);
   text-align: center;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  font-weight: 800;
+  opacity: 0.9;
 }
 
 .hero h1 {
   margin: 0;
-  font-size: 2.4rem;
-  font-weight: 800;
+  font-size: 2.35rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.hero p {
+  color: rgba(4, 19, 17, 0.8);
+  font-weight: 600;
 }
 
 .content {
@@ -119,10 +141,11 @@ onMounted(fetchOrder)
 }
 
 .panel {
-  background: #1a1a1d;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 250, 171, 0.12);
+  background: linear-gradient(160deg, #1c1f26, #14161c);
+  border-radius: 18px;
+  border: 1px solid rgba(0, 250, 171, 0.18);
   padding: 28px;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.36);
 }
 
 .summary {
@@ -133,8 +156,8 @@ onMounted(fetchOrder)
 }
 
 .badge {
-  background: rgba(0, 250, 171, 0.15);
-  color: #00faab;
+  background: rgba(0, 109, 74, 0.92);
+  color: #e9fff7;
   padding: 6px 12px;
   border-radius: 999px;
   font-weight: 700;
@@ -151,9 +174,10 @@ onMounted(fetchOrder)
   grid-template-columns: 60px 1fr auto;
   gap: 12px;
   align-items: center;
-  background: #111114;
+  background: #12151b;
   border-radius: 10px;
   padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .item img {

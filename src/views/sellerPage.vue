@@ -79,48 +79,38 @@ const sellerProducts = ref([
 }
 
 .hero-section {
-  background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
-  padding: 80px 20px;
-  text-align: center;
-  color: black;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 400px;
-  height: 400px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  pointer-events: none;
+  max-width: 1220px;
+  margin: 20px auto 0;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 48%),
+    linear-gradient(125deg, #00faab 0%, #00c896 56%, #009e8f 100%);
+  color: #041311;
+  padding: 36px 28px;
+  border: 1px solid rgba(0, 250, 171, 0.24);
 }
 
 .hero-content {
-  position: relative;
-  z-index: 1;
+  text-align: center;
 }
 
 .hero-title {
-  font-size: 3rem;
-  font-weight: 800;
+  font-size: 2.45rem;
+  font-weight: 900;
   margin: 0;
   margin-bottom: 10px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.02em;
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   margin: 0;
-  opacity: 0.9;
+  color: rgba(4, 19, 17, 0.8);
 }
 
 .content-wrapper {
-  max-width: 1000px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 60px 20px;
 }
@@ -133,10 +123,10 @@ const sellerProducts = ref([
 }
 
 .stat-card {
-  background: linear-gradient(135deg, #27272a 0%, #1f1f23 100%);
+  background: linear-gradient(160deg, #1b1f26, #151821);
   padding: 30px 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 250, 171, 0.1);
+  border-radius: 14px;
+  border: 1px solid rgba(0, 250, 171, 0.16);
   display: flex;
   align-items: center;
   gap: 20px;
@@ -207,15 +197,17 @@ const sellerProducts = ref([
 }
 
 .products-table {
+  background: linear-gradient(160deg, #1b1f26, #14161c);
   border: 1px solid rgba(0, 250, 171, 0.2);
-  border-radius: 12px;
+  border-radius: 14px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.32);
   overflow: hidden;
 }
 
 .table-header {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
-  background: linear-gradient(135deg, rgba(0, 250, 171, 0.1) 0%, rgba(0, 200, 150, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(0, 250, 171, 0.15) 0%, rgba(0, 200, 150, 0.12) 100%);
   border-bottom: 2px solid rgba(0, 250, 171, 0.2);
   padding: 15px;
   font-weight: 600;
@@ -232,7 +224,7 @@ const sellerProducts = ref([
 }
 
 .table-row:hover {
-  background-color: rgba(0, 250, 171, 0.05);
+  background-color: rgba(0, 250, 171, 0.08);
 }
 
 .table-row:last-child {
@@ -254,15 +246,15 @@ const sellerProducts = ref([
 }
 
 .status-badge.active {
-  background-color: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background-color: rgba(19, 86, 55, 0.9);
+  color: #e8fff2;
+  border: 1px solid rgba(34, 197, 94, 0.45);
 }
 
 .status-badge.pending {
-  background-color: rgba(251, 146, 60, 0.2);
-  color: #fb923c;
-  border: 1px solid rgba(251, 146, 60, 0.3);
+  background-color: rgba(119, 61, 12, 0.9);
+  color: #ffeedc;
+  border: 1px solid rgba(251, 146, 60, 0.42);
 }
 
 .action-btn {

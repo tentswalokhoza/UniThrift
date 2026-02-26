@@ -211,6 +211,7 @@ const getCategoryImage = (category) => {
         <div class="hero-copy">
           <p class="eyebrow">UniThrift Dashboard</p>
           <h1>Curate the campus marketplace in one place.</h1>
+          <p class="hero-slogan">Your student market</p>
           <p class="hero-subtitle">
             Track product activity, drop-off points, and browse the latest categories with a clean, focused workflow.
           </p>
@@ -334,6 +335,13 @@ const getCategoryImage = (category) => {
   color: #c8c8c8;
   font-size: 1rem;
   max-width: 520px;
+}
+
+.hero-slogan {
+  margin: 10px 0 0;
+  color: #00faab;
+  font-weight: 700;
+  text-transform: capitalize;
 }
 
 .eyebrow {

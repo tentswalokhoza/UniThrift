@@ -85,6 +85,7 @@ onMounted(fetchCart)
   <div class="page">
     <div class="hero">
       <div class="hero-content">
+        <p class="eyebrow">Secure Checkout</p>
         <h1>Checkout</h1>
         <p>Confirm details and place your order.</p>
       </div>
@@ -151,16 +152,36 @@ onMounted(fetchCart)
 }
 
 .hero {
-  background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
-  color: #0f0f12;
-  padding: 60px 20px;
-  text-align: center;
+  max-width: 1220px;
+  margin: 20px auto 0;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 48%),
+    linear-gradient(125deg, #00faab 0%, #00c896 56%, #009e8f 100%);
+  color: #041311;
+  padding: 34px 28px;
+  border: 1px solid rgba(0, 250, 171, 0.24);
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  font-weight: 800;
+  opacity: 0.9;
 }
 
 .hero h1 {
   margin: 0;
-  font-size: 2.4rem;
-  font-weight: 800;
+  font-size: 2.35rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.hero p {
+  color: rgba(4, 19, 17, 0.8);
+  font-weight: 600;
 }
 
 .content {
@@ -173,11 +194,11 @@ onMounted(fetchCart)
 }
 
 .panel {
-  background: #1a1a1d;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 250, 171, 0.12);
+  background: linear-gradient(160deg, #1c1f26, #14161c);
+  border-radius: 18px;
+  border: 1px solid rgba(0, 250, 171, 0.18);
   padding: 24px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.36);
 }
 
 .form-grid {
@@ -228,10 +249,11 @@ textarea {
 }
 
 .summary-card {
-  background: #1f1f23;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 250, 171, 0.12);
+  background: linear-gradient(160deg, #1b1f26, #151821);
+  border-radius: 18px;
+  border: 1px solid rgba(0, 250, 171, 0.2);
   padding: 24px;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
 }
 
 .summary-items {
