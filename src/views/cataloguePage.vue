@@ -1,50 +1,98 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import { useRoute } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
-import { searchQuery } from '@/composables/useSearch';
-import { getProductImage } from '@/composables/useProductImages'
+import { searchQuery } from '@/composables/useSearch'
 import { useSession } from '@/composables/useSession'
 
 const products = ref([])
 const route = useRoute()
+const router = useRouter()
 const { userId } = useSession()
 const cartNotice = ref('')
 const addedMap = ref({})
+const sortOption = ref('featured')
+
+const selectedCategory = computed(() => {
+  const value = (route.query.category || 'All').toString().trim()
+  return value || 'All'
+})
+
+const categories = computed(() => {
+  const set = new Set(
+    products.value
+      .map(p => (p.category || '').toString().trim())
+      .filter(Boolean)
+  )
+  return ['All', ...Array.from(set).sort((a, b) => a.localeCompare(b))]
+})
 
 const filteredProducts = computed(() => {
-  let list = products.value
+  let list = [...products.value]
 
-  const cat = (route.query.category || '').toString().trim()
-  if (cat) {
-    const catLower = cat.toLowerCase()
+  if (selectedCategory.value !== 'All') {
+    const catLower = selectedCategory.value.toLowerCase()
     list = list.filter(p => (p.category || '').toLowerCase() === catLower)
   }
 
-  if (!searchQuery.value) return list
-  const q = searchQuery.value.toLowerCase()
-  return list.filter(p => 
-    p.title.toLowerCase().includes(q) ||
-    p.description?.toLowerCase().includes(q) ||
-    p.category?.toLowerCase().includes(q)
-  )
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    list = list.filter(p =>
+      p.title?.toLowerCase().includes(q) ||
+      p.description?.toLowerCase().includes(q) ||
+      p.category?.toLowerCase().includes(q)
+    )
+  }
+
+  switch (sortOption.value) {
+    case 'price-low':
+      list.sort((a, b) => Number(a.price || 0) - Number(b.price || 0))
+      break
+    case 'price-high':
+      list.sort((a, b) => Number(b.price || 0) - Number(a.price || 0))
+      break
+    case 'newest':
+      list.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+      break
+    case 'name':
+      list.sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+      break
+    default:
+      list.sort((a, b) => {
+        const statusRankA = a.status === 'available' ? 0 : 1
+        const statusRankB = b.status === 'available' ? 0 : 1
+        if (statusRankA !== statusRankB) return statusRankA - statusRankB
+        return new Date(b.created_at || 0) - new Date(a.created_at || 0)
+      })
+  }
+
+  return list
 })
 
-// Expand/collapse state
-const expandedCards = ref(new Set())
-
-const toggleCard = (id) => {
-  if (expandedCards.value.has(id)) {
-    expandedCards.value.delete(id)
+const setCategory = async (category) => {
+  const nextQuery = { ...route.query }
+  if (category === 'All') {
+    delete nextQuery.category
   } else {
-    expandedCards.value.add(id)
+    nextQuery.category = category
+  }
+  await router.push({ name: 'catalogue', query: nextQuery })
+}
+
+const expandedCards = ref(new Set())
+const getCardKey = (product, index) => product.product_id ?? product.id ?? `${product.title || 'item'}-${index}`
+
+const toggleCard = (cardKey) => {
+  if (expandedCards.value.has(cardKey)) {
+    expandedCards.value.delete(cardKey)
+  } else {
+    expandedCards.value.add(cardKey)
   }
   expandedCards.value = new Set(expandedCards.value)
 }
 
-const isExpanded = (id) => expandedCards.value.has(id)
+const isExpanded = (cardKey) => expandedCards.value.has(cardKey)
 
-// Build a map of images found under src/assets/product at build time
 const importedImages = import.meta.glob('../assets/product/*', { eager: true, as: 'url' })
 const imageMap = {}
 Object.entries(importedImages).forEach(([path, url]) => {
@@ -97,9 +145,8 @@ const getImage = (fileNameOrUrl) => {
   }
   if (best.score > 0) return best.url
 
-  const lowerKey = keyNorm
   for (const [name, url] of Object.entries(imageMap)) {
-    if (name.toLowerCase().includes(lowerKey) || lowerKey.includes(name.toLowerCase())) return url
+    if (name.toLowerCase().includes(keyNorm) || keyNorm.includes(name.toLowerCase())) return url
   }
 
   return defaultImg
@@ -111,7 +158,7 @@ const formatCurrency = (amount) => {
 }
 
 const addToCart = async (product) => {
-  if (product.status === 'sold') return   // ✅ only logic added
+  if (product.status === 'sold') return
 
   if (!userId) {
     alert('Please sign in to add items to your cart.')
@@ -147,16 +194,16 @@ onMounted(async () => {
   try {
     const res = await fetch('http://localhost:2006/products')
     if (!res.ok) throw new Error(res.statusText)
-    const data = await res.json()
-    products.value = data
+    products.value = await res.json()
   } catch (err) {
-    console.error('Failed to fetch product catalogue from SQL ', err)
+    console.error('Failed to fetch product catalogue from SQL', err)
   }
 })
 </script>
 
 <template>
   <NavBar />
+
   <div class="catalogue-container">
     <div v-if="cartNotice" class="toast">{{ cartNotice }}</div>
 
@@ -167,23 +214,54 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="content-wrapper">
-      <div class="products-row">
-        <div
-          v-for="product in filteredProducts"
-          :key="product.product_id"
+    <section class="content-wrapper">
+      <div class="toolbar">
+        <div class="category-chips">
+          <button
+            v-for="category in categories"
+            :key="category"
+            type="button"
+            class="chip"
+            :class="{ active: selectedCategory === category }"
+            @click="setCategory(category)"
+          >
+            {{ category }}
+          </button>
+        </div>
+
+        <div class="toolbar-actions">
+          <label for="sort" class="sort-label">Sort by</label>
+          <select id="sort" v-model="sortOption" class="sort-select">
+            <option value="featured">Featured</option>
+            <option value="newest">Newest</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="name">Name</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="result-header">
+        <p>{{ filteredProducts.length }} products found</p>
+      </div>
+
+      <div class="products-grid">
+        <article
+          v-for="(product, index) in filteredProducts"
+          :key="getCardKey(product, index)"
           class="product-card"
         >
           <div
             class="card"
-            :class="{ expanded: isExpanded(product.product_id) }"
-            @click="toggleCard(product.product_id)"
+            :class="{ expanded: isExpanded(getCardKey(product, index)) }"
+            @click="toggleCard(getCardKey(product, index))"
           >
             <div class="image_container">
               <img
                 :src="getImage(product.image_url || product.image)"
                 :alt="`Photo of ${product.title}`"
               />
+              <span class="status-pill" :class="`status-${product.status}`">{{ product.status || 'unknown' }}</span>
             </div>
 
             <div class="card-minimal">
@@ -191,9 +269,8 @@ onMounted(async () => {
               <div class="price">{{ formatCurrency(product.price) }}</div>
             </div>
 
-            <div class="card-details-wrapper" :class="{ visible: isExpanded(product.product_id) }">
+            <div class="card-details-wrapper" :class="{ visible: isExpanded(getCardKey(product, index)) }">
               <div class="card-details-inner">
-
                 <div class="details-grid">
                   <div class="detail-item">
                     <span class="detail-label">Seller</span>
@@ -209,25 +286,15 @@ onMounted(async () => {
                   </div>
                   <div class="detail-item">
                     <span class="detail-label">Stock</span>
-                    <span class="detail-value">{{ product.quantity }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Status</span>
-                    <span class="detail-value" :class="`status-${product.status}`">
-                      {{ product.status }}
-                    </span>
+                    <span class="detail-value">{{ product.quantity ?? 0 }}</span>
                   </div>
                   <div class="detail-item">
                     <span class="detail-label">Listed</span>
-                    <span class="detail-value">
-                      {{ product.created_at ? new Date(product.created_at).toLocaleDateString() : 'N/A' }}
-                    </span>
+                    <span class="detail-value">{{ product.created_at ? new Date(product.created_at).toLocaleDateString() : 'N/A' }}</span>
                   </div>
                 </div>
 
-                <div v-if="product.description" class="description">
-                  {{ product.description }}
-                </div>
+                <p v-if="product.description" class="description">{{ product.description }}</p>
 
                 <div class="action" @click.stop>
                   <button
@@ -235,144 +302,187 @@ onMounted(async () => {
                     :disabled="product.status === 'sold'"
                     @click.stop="addToCart(product)"
                   >
-                    <span>
-                      {{ product.status === 'sold'
-                        ? 'Sold Out'
-                        : addedMap[product.product_id]
-                          ? 'Added'
-                          : 'Add to cart'
-                      }}
-                    </span>
+                    {{ product.status === 'sold' ? 'Sold Out' : addedMap[product.product_id] ? 'Added' : 'Add to Cart' }}
                   </button>
                 </div>
-
               </div>
             </div>
 
             <div class="expand-hint">
-              <span class="chevron" :class="{ flipped: isExpanded(product.product_id) }">&#8964;</span>
+              <span class="chevron" :class="{ flipped: isExpanded(getCardKey(product, index)) }">&#8964;</span>
             </div>
-
           </div>
-        </div>
+        </article>
       </div>
-    </div>
+    </section>
   </div>
 </template>
-
-
 
 <style scoped>
 .catalogue-container {
   width: 100%;
-  background-color: #0f0f12;
-  color: #d9d9d9;
+  color: #e4e7eb;
 }
 
 .toast {
   position: fixed;
-  top: 90px;
-  right: 24px;
-  z-index: 50;
-  background: rgba(0, 250, 171, 0.12);
+  top: 84px;
+  right: 20px;
+  z-index: 60;
+  background: rgba(0, 250, 171, 0.14);
   color: #00faab;
   border: 1px solid rgba(0, 250, 171, 0.4);
   padding: 10px 14px;
   border-radius: 10px;
-  font-weight: 600;
-  backdrop-filter: blur(6px);
+  font-weight: 700;
+  backdrop-filter: blur(8px);
 }
-
 
 .hero-section {
-  background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
-  padding: 80px 20px;
-  text-align: center;
-  color: black;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 400px;
-  height: 400px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  pointer-events: none;
+  max-width: 1220px;
+  margin: 20px auto 0;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 48%),
+    linear-gradient(125deg, #00faab 0%, #00c896 56%, #009e8f 100%);
+  color: #041311;
+  padding: 34px 28px;
+  border: 1px solid rgba(0, 250, 171, 0.24);
 }
 
 .hero-content {
-  position: relative;
-  z-index: 1;
+  text-align: center;
 }
 
 .hero-title {
-  font-size: 3rem;
-  font-weight: 800;
-  margin: 0 0 10px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: 0;
+  font-size: 2.4rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
-  font-weight: 500;
-  margin: 0;
-  opacity: 0.9;
+  margin: 8px 0 0;
+  color: rgba(4, 19, 17, 0.8);
+  font-weight: 600;
 }
 
-/* Content Wrapper */
 .content-wrapper {
-  max-width: 1400px;
+  max-width: 1320px;
   margin: 0 auto;
-  padding: 60px 20px;
+  padding: 30px 20px 60px;
 }
 
-/* Products Grid */
-.products-row {
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 14px;
+  background: #15171d;
+  border: 1px solid rgba(0, 250, 171, 0.14);
+  border-radius: 14px;
+}
+
+.category-chips {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.5rem;
-  padding: 1rem;
-  animation: fadeIn 0.6s ease-in;
+  gap: 8px;
+}
+
+.chip {
+  background: #101218;
+  color: #c8cfd8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.chip:hover {
+  border-color: rgba(0, 250, 171, 0.45);
+  color: #efffff;
+}
+
+.chip.active {
+  background: linear-gradient(135deg, #00faab, #00c896);
+  color: #062320;
+  border-color: transparent;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sort-label {
+  font-size: 0.84rem;
+  color: #95a0ad;
+  font-weight: 600;
+}
+
+.sort-select {
+  background: #11141a;
+  color: #dbe2ea;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+  min-width: 190px;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: rgba(0, 250, 171, 0.6);
+  box-shadow: 0 0 0 3px rgba(0, 250, 171, 0.14);
+}
+
+.result-header {
+  margin-top: 14px;
+  color: #9da8b3;
+  font-size: 0.9rem;
+}
+
+.products-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  align-items: start;
 }
 
 .product-card {
-  flex: 0 1 320px;
+  align-self: start;
 }
 
-/* Card */
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 320px;
-  background-color: #1a1a1d;
-  border-radius: 0.85rem;
+  background: linear-gradient(160deg, #1a1d24, #14161c);
+  border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
   border: 1px solid rgba(0, 250, 171, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 14px 36px rgba(0, 250, 171, 0.18);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.45);
   border-color: rgba(0, 250, 171, 0.35);
 }
 
-/* Image */
 .image_container {
   width: 100%;
-  height: 22rem;
+  height: 300px;
   overflow: hidden;
   position: relative;
-  flex-shrink: 0;
 }
 
 .image_container img {
@@ -383,39 +493,60 @@ onMounted(async () => {
 }
 
 .card:hover .image_container img {
-  transform: scale(1.06);
+  transform: scale(1.05);
 }
 
-/* Minimal info - always visible */
+.status-pill {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(0, 109, 74, 0.92);
+  color: #e9fff7;
+}
+
+.status-sold {
+  background: rgba(122, 20, 20, 0.92);
+  color: #ffe5e5;
+}
+
+.status-removed {
+  background: rgba(68, 74, 83, 0.92);
+  color: #eef2f6;
+}
+
 .card-minimal {
-  padding: 0.85rem 1rem 0.35rem;
+  padding: 0.95rem 1rem 0.4rem;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
 }
 
 .card-minimal .title {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #e8e8e8;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #f3f6f8;
+  letter-spacing: 0.02em;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .card-minimal .price {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #b0b0b0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #00faab;
 }
-
 
 .card-details-wrapper {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-details-wrapper.visible {
@@ -425,146 +556,133 @@ onMounted(async () => {
 .card-details-inner {
   overflow: hidden;
   padding: 0 1rem;
-  transition: padding 0.4s ease;
+  transition: padding 0.35s ease;
 }
 
 .card-details-wrapper.visible .card-details-inner {
-  padding: 0.25rem 1rem 1rem;
+  padding: 0.3rem 1rem 1rem;
 }
-
 
 .details-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem 1rem;
-  margin-bottom: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 0.9rem;
+  margin-bottom: 0.7rem;
 }
 
 .detail-item {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.12rem;
 }
 
 .detail-label {
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #555;
-  font-weight: 600;
+  color: #66707b;
+  font-weight: 700;
 }
 
 .detail-value {
   font-size: 0.82rem;
-  color: #c0c0c0;
-  font-weight: 500;
+  color: #c7d0da;
+  font-weight: 600;
 }
 
 .category-tag {
   color: #00faab;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .description {
   font-size: 0.82rem;
-  color: #888;
-  line-height: 1.5;
+  color: #8f9aa6;
+  line-height: 1.45;
   margin-bottom: 0.85rem;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-
-.status-available {
-  color: #00faab;
-  font-weight: 600;
-}
-
-.status-sold {
-  color: #ff4d4f;
-  font-weight: 600;
-}
-
-.status-removed {
-  color: #666;
-  font-weight: 600;
-}
-
-
-.action {
-  margin-top: 0.25rem;
 }
 
 .cart-button {
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.55rem;
   width: 100%;
   background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: black;
+  color: #071916;
   border: none;
-  border-radius: 0.5rem;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 10px rgba(0, 250, 171, 0.25);
+  border-radius: 9px;
+  padding: 9px 12px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
 }
 
 .cart-button:hover {
-  transform: scale(1.03);
-  box-shadow: 0 4px 18px rgba(0, 250, 171, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 250, 171, 0.28);
 }
 
-.cart-button:active {
-  transform: scale(0.97);
+.cart-button:disabled {
+  background: #2c3038;
+  color: #8d97a3;
+  cursor: not-allowed;
+  box-shadow: none;
 }
-
-.cart-icon {
-  width: 1rem;
-  flex-shrink: 0;
-}
-
 
 .expand-hint {
   text-align: center;
-  padding: 0.3rem 0 0.45rem;
-  color: #444;
-  transition: color 0.2s ease;
-}
-
-.card:hover .expand-hint {
-  color: #00faab;
+  padding: 0.25rem 0 0.5rem;
+  color: #4f5762;
 }
 
 .chevron {
   display: inline-block;
   font-size: 1.2rem;
   line-height: 1;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .chevron.flipped {
   transform: rotate(180deg);
 }
 
+@media (max-width: 768px) {
+  .hero-section {
+    margin: 14px 12px 0;
+    padding: 28px 18px;
+  }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .content-wrapper {
+    padding: 24px 14px 48px;
+  }
+
+  .toolbar {
+    padding: 12px;
+  }
+
+  .toolbar-actions {
+    width: 100%;
+  }
+
+  .sort-select {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .image_container {
+    height: 220px;
+  }
 }
 
-@media (max-width: 768px) {
-  .hero-title    { font-size: 2rem; }
-  .hero-subtitle { font-size: 1rem; }
-  .hero-section  { padding: 50px 20px; }
-  .content-wrapper { padding: 40px 20px; }
-  .card { width: 100%; }
-  .product-card { flex: 0 1 100%; }
+@media (max-width: 540px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -1,5 +1,4 @@
 <script setup>
-import { ref  } from "vue";
 import NavBar from '@/components/NavBar.vue'
 
 
@@ -60,6 +59,7 @@ const submitContact = async (e) => {
 <div class="contact-container">
   <div class="hero-section">
     <div class="hero-content">
+      <p class="eyebrow">UniThrift Support</p>
       <h1 class="hero-title">Contact Us</h1>
       <p class="hero-subtitle">We'd love to hear from you</p>
     </div>
@@ -124,48 +124,48 @@ const submitContact = async (e) => {
 }
 
 .hero-section {
-  background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
-  padding: 80px 20px;
-  text-align: center;
-  color: black;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 400px;
-  height: 400px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  pointer-events: none;
+  max-width: 1220px;
+  margin: 20px auto 0;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 48%),
+    linear-gradient(125deg, #00faab 0%, #00c896 56%, #009e8f 100%);
+  color: #041311;
+  padding: 36px 28px;
+  border: 1px solid rgba(0, 250, 171, 0.24);
 }
 
 .hero-content {
-  position: relative;
-  z-index: 1;
+  text-align: center;
 }
 
-.hero-title {
-  font-size: 3rem;
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.7rem;
   font-weight: 800;
-  margin: 0;
-  margin-bottom: 10px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.hero-subtitle {
-  font-size: 1.2rem;
-  font-weight: 500;
-  margin: 0;
   opacity: 0.9;
 }
 
+.hero-title {
+  font-size: 2.45rem;
+  font-weight: 900;
+  margin: 0;
+  margin-top: 10px;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: rgba(4, 19, 17, 0.8);
+}
+
 .content-wrapper {
-  max-width: 1000px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 60px 20px;
 }
@@ -173,20 +173,30 @@ const submitContact = async (e) => {
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  gap: 24px;
+}
+
+.contact-info,
+.contact-form {
+  background: linear-gradient(160deg, #1b1f26, #14161c);
+  border: 1px solid rgba(0, 250, 171, 0.16);
+  border-radius: 16px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.34);
+  padding: 24px;
 }
 
 .contact-info h2 {
-  font-size: 2rem;
+  font-size: 1.9rem;
   color: #00faab;
-  margin-bottom: 40px;
+  margin-bottom: 24px;
   font-weight: 700;
 }
 
 .info-item {
   display: flex;
-  gap: 20px;
-  margin-bottom: 40px;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 24px;
   animation: fadeIn 0.8s ease-in;
 }
 
@@ -196,20 +206,14 @@ const submitContact = async (e) => {
 }
 
 .info-item h3 {
-  font-size: 1.2rem;
+  font-size: 1.06rem;
   color: #00faab;
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
 }
 
 .info-item p {
   margin: 0;
   color: #888;
-}
-
-.contact-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
 
 .form-group {
@@ -226,11 +230,11 @@ const submitContact = async (e) => {
 
 .form-group input,
 .form-group textarea {
-  padding: 12px 16px;
-  background-color: #18181b;
-  border: 1px solid rgba(0, 250, 171, 0.2);
-  border-radius: 8px;
-  color: #d9d9d9;
+  padding: 11px 14px;
+  background-color: #11141a;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  color: #e3e8ef;
   font-size: 1rem;
   font-family: inherit;
   transition: all 0.3s ease;
@@ -240,25 +244,25 @@ const submitContact = async (e) => {
 .form-group textarea:focus {
   outline: none;
   border-color: #00faab;
-  box-shadow: 0 0 12px rgba(0, 250, 171, 0.2);
+  box-shadow: 0 0 0 3px rgba(0, 250, 171, 0.16);
 }
 
 .submit-btn {
-  padding: 12px 30px;
+  padding: 11px 18px;
   background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
-  color: black;
+  color: #071916;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   margin-top: 10px;
 }
 
 .submit-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 250, 171, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 250, 171, 0.28);
 }
 
 .submit-btn:active {
@@ -286,7 +290,8 @@ const submitContact = async (e) => {
   }
 
   .hero-section {
-    padding: 50px 20px;
+    margin: 14px 12px 0;
+    padding: 28px 18px;
   }
 
   .contact-grid {
