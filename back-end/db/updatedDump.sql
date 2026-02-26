@@ -3,7 +3,8 @@
 -- Host: localhost    Database: unithrift
 -- ------------------------------------------------------
 -- Server version	8.0.44
-
+CREATE DATABASE IF NOT EXISTS unithrift;
+USE unithrift;
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
