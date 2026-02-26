@@ -16,13 +16,6 @@ const handleLogout = () => {
 </script>
 
 <template>
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container-fluid">
-  
-      <router-link to="/dashboard" class="brand-block">
-        <h4 class="brand-title">UniThrift</h4>
-      </router-link>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
   <nav class="navbar navbar-expand-lg custom-navbar shadow-sm">
     <div class="container">
 
