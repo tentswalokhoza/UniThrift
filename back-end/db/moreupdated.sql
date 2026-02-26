@@ -268,3 +268,48 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-02-25 12:42:46
+
+INSERT INTO unithrift.products
+(seller_id, title, description, price, quantity, category, size, image_url, status, created_at)
+VALUES
+(9, 'Grunge Bracelets', 'A pack of grunge style bracelets', 110.00, 1, 'Accessories', 'None', 'grungebracelet.png', 'available', '2026-02-26 08:50:32');
+
+INSERT INTO unithrift.products
+(seller_id, title, description, price, quantity, category, size, image_url, status, created_at)
+VALUES
+(8, 'Y2K Shirt', 'MMA elite y2k style shirt', 94.50, 0, 'T-Shirts', 'M', 'y2k-shirt.png', 'sold', '2026-02-25 09:40:20');
+
+INSERT INTO unithrift.products
+(seller_id, title, description, price, quantity, category, size, image_url, status, created_at)
+VALUES
+(10, 'iPod Mirror', 'Full body iPod style mirror', 300.00, 1, 'Decoration', '142x71cm', 'ipodmirror.png', 'available', '2026-02-11 20:01:32');
+
+INSERT INTO unithrift.products
+(seller_id, title, description, price, quantity, category, size, image_url, status, created_at)
+VALUES
+(6, 'Retro Hat', 'Retro style Marlboro racing hat', 45.99, 1, 'Accessories', 'None', 'racingcap.png', 'available', '2026-02-24 11:55:46');
+
+INSERT INTO unithrift.products
+(seller_id, title, description, price, quantity, category, size, image_url, status, created_at)
+VALUES
+(7, 'Dr Martens', 'Dr. Martens 939 Ben boots', 799.99, 1, 'Shoes', '10', 'drmartens.png', 'available', '2026-02-26 08:50:32');
+
+INSERT INTO unithrift.products
+(seller_id, title, description, price, quantity, category, size, image_url, status, created_at)
+VALUES
+(6, 'Baggy Jeans', 'Airbrushed baggy jeans, grungy/streetwear/y2k look', 199.00, 0, 'Pants', '28', 'baggyjeans.png', 'sold', '2026-02-21 14:11:53');
+
+INSERT INTO unithrift.products
+(seller_id, title, description, price, quantity, category, size, image_url, status, created_at)
+VALUES
+(NULL, 'Racing Chair', 'Retro racing chassis style chair', 345.00, 0, 'Decoration', 'None', 'chair.png', 'sold', '2026-02-24 11:12:03');
+
+INSERT INTO unithrift.products
+(seller_id, title, description, price, quantity, category, size, image_url, status, created_at)
+VALUES
+(14, 'iPod Mirror', 'Full body iPod style mirror', 300.00, 1, 'Decoration', '142.24*71.1cm', 'ipodmirror.png', 'available', '2026-02-11 20:01:32');
+
+INSERT INTO unithrift.products
+(seller_id, title, description, price, quantity, category, size, image_url, status, created_at)
+VALUES
+(14, 'iPod Mirror', 'Full body iPod style mirror', 300.00, 1, 'Decoration', '142.24*71.1cm', 'ipodmirror.png', 'available', '2026-02-11 20:01:32');

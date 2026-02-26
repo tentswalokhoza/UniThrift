@@ -22,15 +22,14 @@ const handleLogout = () => {
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
   
-      <router-link to="/dashboard">
+      <router-link to="/dashboard" class="brand-block">
+        <h4 class="brand-title">UniThrift</h4>
       </router-link>
-      <h4>UniThrift</h4>
-      <a :src class="navbar-brand" href=""></a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav mb-2 mb-lg-0">
           <li class="nav-item">
             <router-link to="/dashboard" class="nav-link active" aria-current="page" >Dashboard</router-link>
           </li>
@@ -54,29 +53,62 @@ const handleLogout = () => {
           </li>
           
         </ul>
-     <li class="nav-item" v-if="isLoggedIn">
-  <button @click="handleLogout" class="nav-link btn logout-button">
-    Logout
-  </button>
-</li>
-        <input 
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search products..."
-          class="nav-search"
-        />
+        <div class="nav-actions">
+          <input 
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search products..."
+            class="nav-search"
+          />
+          <button v-if="isLoggedIn" @click="handleLogout" class="nav-link btn logout-button">
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   </nav>
 </template>
 <style scoped>
-li{
-  margin:0% 10% 0;
-}
-
 .navbar-nav .nav-item,
 .navbar .nav-item {
   list-style: none;
+}
+
+.brand-block {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 48px;
+}
+
+.brand-title {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.navbar-collapse {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.navbar-nav {
+  flex: 1;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.navbar-nav .nav-item {
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 .nav-search {
@@ -108,8 +140,6 @@ li{
   color: #0f0f12; 
   font-weight: 600;
   padding: 6px 14px;
-  position: relative;
-  right: -120px; 
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
