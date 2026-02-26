@@ -4,7 +4,7 @@ import dotenv from "dotenv"
 import authRoutes from "./bcryptAuth.js"
 
 
-
+import { addReview, fetchProductReviews, editReview, removeReview } from './controllers/reviewsCon.js'
 import { getProducts, getDashboardProducts, patchProducts, postProducts } from './controllers/productsCon.js';
 
 import { getSeller, getTopSellersProducts } from './controllers/sellerCon.js';
@@ -31,7 +31,10 @@ app.get('/products/dashboard', getDashboardProducts)
 app.get('/topsellers', getTopSellersProducts)
 app.post('/products',postProducts)
 app.patch('/products',patchProducts)
-
+app.post('/reviews',addReview)
+app.get('/reviews/:productId', fetchProductReviews)
+app.patch('/reviews/:reviewId', editReview)
+app.delete('/reviews/:reviewId', removeReview)
 
 app.get('/seller',getSeller)
 

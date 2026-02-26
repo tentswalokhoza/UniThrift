@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import NavBar from '@/components/NavBar.vue';
 
 const reviews = ref([]);
@@ -11,9 +11,11 @@ const formData = ref({
   comment: ""
 });
 
+
+
 const fetchReviews = async () => {
   try {
-    const res = await fetch("http://localhost:2006/reviews");
+    const res = await fetch(`http://localhost:2006/reviews`);
     if (!res.ok) throw new Error("Failed to fetch reviews");
     reviews.value = await res.json();
   } catch (err) {
@@ -23,13 +25,24 @@ const fetchReviews = async () => {
 
 const submitReview = async () => {
   try {
+    const payload = {
+      product_id: parseInt(formData.value.product_id),
+      reviewer_id: parseInt(formData.value.reviewer_id),
+      rating: parseInt(formData.value.rating),
+      comment: formData.value.comment
+    };
+
     const res = await fetch("http://localhost:2006/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData.value)
+      body: JSON.stringify(payload)
     });
 
-    if (!res.ok) throw new Error("Failed to submit review");
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Server error:", errorText);
+      throw new Error("Failed to submit review");
+    }
 
     await fetchReviews();
 
@@ -47,6 +60,13 @@ const submitReview = async () => {
   }
 };
 
+const formatDate = (ts) => {
+  if (!ts) return "";
+  return new Date(ts).toLocaleDateString("en-US", {
+    year: "numeric", month: "short", day: "numeric"
+  });
+};
+
 onMounted(fetchReviews);
 </script>
 
@@ -54,7 +74,7 @@ onMounted(fetchReviews);
   <NavBar />
 
   <div class="review-container">
-    <!-- Banner -->
+    <!-- Hero Banner -->
     <div class="hero-section">
       <div class="hero-content">
         <h1 class="hero-title">Product Reviews</h1>
@@ -62,37 +82,37 @@ onMounted(fetchReviews);
       </div>
     </div>
 
-   
     <div class="review-wrapper">
       <div class="review-grid">
 
         <!-- Form -->
         <form class="review-form" @submit.prevent="submitReview">
-          <div class="form-group">
-            <label>Product ID</label>
-            <input v-model="formData.product_id" type="text" required />
+          <div class="form-group row-2">
+            <div class="form-field">
+              <label>Product ID</label>
+              <input v-model="formData.product_id" type="number" placeholder="e.g. 12" required />
+            </div>
+            <div class="form-field">
+              <label>Your ID</label>
+              <input v-model="formData.reviewer_id" type="number" placeholder="e.g. 5" required />
+            </div>
           </div>
 
           <div class="form-group">
-            <label>Your ID</label>
-            <input v-model="formData.reviewer_id" type="text" required />
-          </div>
-
-          <div class="form-group">
-            <label>Rating</label>
-            <select v-model="formData.rating" required>
-              <option disabled value="">Select Rating</option>
-              <option value="1">1 ⭐</option>
-              <option value="2">2 ⭐</option>
-              <option value="3">3 ⭐</option>
-              <option value="4">4 ⭐</option>
-              <option value="5">5 ⭐</option>
-            </select>
+            <label>Rating <span class="rating-hint">(1 – 5)</span></label>
+            <input
+              v-model="formData.rating"
+              type="number"
+              min="1"
+              max="5"
+              placeholder="Enter a rating from 1 to 5"
+              required
+            />
           </div>
 
           <div class="form-group">
             <label>Comment</label>
-            <textarea v-model="formData.comment" rows="5" required></textarea>
+            <textarea v-model="formData.comment" rows="5" placeholder="Write your thoughts..." required></textarea>
           </div>
 
           <button type="submit" class="submit-btn">
@@ -100,23 +120,26 @@ onMounted(fetchReviews);
           </button>
         </form>
 
-        <!-- review lists-->
+        <!-- Reviews List -->
         <div class="reviews-list">
+          <div v-if="reviews.length === 0" class="empty-state">
+            <span class="empty-icon">💬</span>
+            <p>No reviews yet. Be the first!</p>
+          </div>
+
           <div
             class="review-card"
             v-for="review in reviews"
             :key="review.id"
           >
             <div class="review-rating">
-              {{ review.rating }} ⭐
+              <span v-for="n in review.rating" :key="n">★</span>
+              <span class="rating-num">{{ review.rating }}/5</span>
             </div>
-
-            <div class="review-comment">
-              {{ review.comment }}
-            </div>
-
-            <div class="review-date">
-              {{ review.created_at }}
+            <div class="review-comment">{{ review.comment }}</div>
+            <div class="review-meta">
+              <span class="reviewer-id">User #{{ review.reviewer_id }}</span>
+              <span class="review-date">{{ formatDate(review.created_at) }}</span>
             </div>
           </div>
         </div>
@@ -131,9 +154,10 @@ onMounted(fetchReviews);
   width: 100%;
   background-color: #0f0f12;
   color: #d9d9d9;
+  min-height: 100vh;
 }
 
-
+/* Hero */
 .hero-section {
   background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
   padding: 80px 20px;
@@ -171,7 +195,7 @@ onMounted(fetchReviews);
   font-weight: 500;
 }
 
-
+/* Layout */
 .review-wrapper {
   max-width: 1000px;
   margin: 0 auto;
@@ -184,7 +208,7 @@ onMounted(fetchReviews);
   gap: 60px;
 }
 
-
+/* Form */
 .review-form {
   display: flex;
   flex-direction: column;
@@ -197,14 +221,27 @@ onMounted(fetchReviews);
   gap: 8px;
 }
 
-.form-group label {
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  flex-direction: unset;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label,
+.form-field label {
   font-size: 0.95rem;
   font-weight: 600;
   color: #00faab;
 }
 
 .review-form input,
-.review-form select,
 .review-form textarea {
   padding: 12px 16px;
   background-color: #18181b;
@@ -213,16 +250,24 @@ onMounted(fetchReviews);
   color: #d9d9d9;
   font-size: 1rem;
   transition: 0.3s ease;
+  outline: none;
+  resize: vertical;
 }
 
 .review-form input:focus,
-.review-form select:focus,
 .review-form textarea:focus {
-  outline: none;
   border-color: #00faab;
   box-shadow: 0 0 12px rgba(0, 250, 171, 0.2);
 }
 
+/* Rating hint */
+.rating-hint {
+  font-size: 0.8rem;
+  color: #555;
+  font-weight: 400;
+}
+
+/* Submit */
 .submit-btn {
   padding: 12px 30px;
   background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
@@ -230,6 +275,7 @@ onMounted(fetchReviews);
   border: none;
   border-radius: 8px;
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
   transition: 0.3s ease;
 }
@@ -239,7 +285,21 @@ onMounted(fetchReviews);
   box-shadow: 0 8px 24px rgba(0, 250, 171, 0.3);
 }
 
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
 
+.empty-icon { font-size: 2.5rem; }
+.empty-state p { font-size: 0.95rem; }
+
+/* Review cards */
 .reviews-list {
   display: flex;
   flex-direction: column;
@@ -262,12 +322,37 @@ onMounted(fetchReviews);
 .review-rating {
   color: #00faab;
   font-weight: 600;
+  font-size: 1.1rem;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating-num {
+  font-size: 0.8rem;
+  color: #555;
+  font-weight: 400;
 }
 
 .review-comment {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   color: #ccc;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.review-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reviewer-id {
+  font-size: 0.8rem;
+  color: #00faab;
+  opacity: 0.6;
+  font-weight: 600;
 }
 
 .review-date {
@@ -275,7 +360,7 @@ onMounted(fetchReviews);
   color: #777;
 }
 
-
+/* Responsive */
 @media (max-width: 768px) {
   .review-grid {
     grid-template-columns: 1fr;
@@ -288,6 +373,10 @@ onMounted(fetchReviews);
 
   .hero-section {
     padding: 50px 20px;
+  }
+
+  .row-2 {
+    grid-template-columns: 1fr;
   }
 }
 </style>
