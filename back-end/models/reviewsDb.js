@@ -3,14 +3,27 @@ import { pool } from '../config.js'
 /**
  * Create a new review
  */
-export const createReview = async (product_id, user_id, rating, comment) => {
+export const createReview = async (product_id, username, rating, comment) => {
   const [result] = await pool.query(
-    `INSERT INTO reviews (product_id, user_id, rating, comment)
+    `INSERT INTO reviews (product_id, username, rating, comment)
      VALUES (?, ?, ?, ?)`,
-    [product_id, user_id, rating, comment]
+    [product_id, username, rating, comment]
   )
 
   return result
+}
+
+/**
+ * Get all reviews
+ */
+export const getAllReviews = async () => {
+  const [rows] = await pool.query(
+    `SELECT r.id, r.product_id, r.username, r.rating, r.comment, r.created_at
+     FROM reviews r
+     ORDER BY r.created_at DESC`
+  )
+
+  return rows
 }
 
 /**
@@ -18,10 +31,8 @@ export const createReview = async (product_id, user_id, rating, comment) => {
  */
 export const getReviewsByProduct = async (product_id) => {
   const [rows] = await pool.query(
-    `SELECT r.id, r.rating, r.comment, r.created_at,
-            u.name AS user_name
+    `SELECT r.id, r.product_id, r.username, r.rating, r.comment, r.created_at
      FROM reviews r
-     JOIN users u ON r.user_id = u.id
      WHERE r.product_id = ?
      ORDER BY r.created_at DESC`,
     [product_id]
@@ -55,6 +66,7 @@ export const getAverageRating = async (product_id) => {
 
   return rows[0]
 }
+
 /**
  * Update a review
  */

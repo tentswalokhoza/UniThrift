@@ -1,5 +1,6 @@
 import {
   createReview,
+  getAllReviews,
   getReviewsByProduct,
   deleteReview,
   getAverageRating,
@@ -9,12 +10,28 @@ import {
 // POST /reviews
 export const addReview = async (req, res, next) => {
   try {
-    const { product_id, user_id, rating, comment } = req.body
-    if (!product_id || !user_id || !rating) {
+    const { product_id, username, rating, comment } = req.body
+    if (!product_id || !username || !rating) {
       return res.status(400).json({ message: 'Missing required fields' })
     }
-    await createReview(product_id, user_id, rating, comment)
+    await createReview(product_id, username, rating, comment)
     res.status(201).json({ message: 'Review created successfully' })
+  } catch (error) {
+    if (error?.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ message: 'You already reviewed this product.' })
+    }
+    if (error?.code === 'ER_NO_REFERENCED_ROW_2') {
+      return res.status(400).json({ message: 'Product ID does not exist.' })
+    }
+    next(error)
+  }
+}
+
+// GET /reviews
+export const fetchAllReviews = async (req, res, next) => {
+  try {
+    const reviews = await getAllReviews()
+    res.status(200).json(reviews)
   } catch (error) {
     next(error)
   }
@@ -54,7 +71,10 @@ export const editReview = async (req, res, next) => {
 export const removeReview = async (req, res, next) => {
   try {
     const { reviewId } = req.params
-    await deleteReview(reviewId)
+    const result = await deleteReview(reviewId)
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Review not found' })
+    }
     res.status(200).json({ message: 'Review deleted successfully' })
   } catch (error) {
     next(error)
