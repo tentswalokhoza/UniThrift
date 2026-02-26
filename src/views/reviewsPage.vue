@@ -135,6 +135,7 @@ onMounted(fetchReviews);
   <div class="review-container">
     <div class="hero-section">
       <div class="hero-content">
+        <p class="eyebrow">Community Feedback</p>
         <h1 class="hero-title">Product Reviews</h1>
         <p class="hero-subtitle">See what our customers are saying</p>
       </div>
@@ -226,52 +227,50 @@ onMounted(fetchReviews);
 <style scoped>
 .review-container {
   width: 100%;
-  background-color: #0f0f12;
   color: #d9d9d9;
   min-height: 100vh;
 }
 
-/* Hero */
 .hero-section {
-  background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
-  padding: 80px 20px;
-  text-align: center;
-  color: black;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-section::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 400px;
-  height: 400px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  pointer-events: none;
+  max-width: 1220px;
+  margin: 20px auto 0;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 48%),
+    linear-gradient(125deg, #00faab 0%, #00c896 56%, #009e8f 100%);
+  color: #041311;
+  padding: 36px 28px;
+  border: 1px solid rgba(0, 250, 171, 0.24);
 }
 
 .hero-content {
-  position: relative;
-  z-index: 1;
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  font-weight: 800;
+  opacity: 0.9;
 }
 
 .hero-title {
-  font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: 10px;
+  font-size: 2.45rem;
+  font-weight: 900;
+  margin: 10px 0 8px;
+  letter-spacing: -0.02em;
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(4, 19, 17, 0.8);
 }
 
-/* Layout */
 .review-wrapper {
-  max-width: 1200px;
+  max-width: 1220px;
   margin: 0 auto;
   padding: 60px 20px;
 }
@@ -279,14 +278,18 @@ onMounted(fetchReviews);
 .review-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  gap: 24px;
 }
 
-/* Form */
 .review-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background: linear-gradient(160deg, #1b1f26, #14161c);
+  border: 1px solid rgba(0, 250, 171, 0.16);
+  border-radius: 16px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.34);
+  padding: 24px;
 }
 
 .form-group {
@@ -317,11 +320,11 @@ onMounted(fetchReviews);
 
 .review-form input,
 .review-form textarea {
-  padding: 12px 16px;
-  background-color: #18181b;
-  border: 1px solid rgba(0, 250, 171, 0.2);
-  border-radius: 8px;
-  color: #d9d9d9;
+  padding: 11px 14px;
+  background-color: #11141a;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  color: #e3e8ef;
   font-size: 1rem;
   transition: 0.3s ease;
   outline: none;
@@ -331,7 +334,7 @@ onMounted(fetchReviews);
 .review-form input:focus,
 .review-form textarea:focus {
   border-color: #00faab;
-  box-shadow: 0 0 12px rgba(0, 250, 171, 0.2);
+  box-shadow: 0 0 0 3px rgba(0, 250, 171, 0.16);
 }
 
 .rating-hint {
@@ -341,27 +344,26 @@ onMounted(fetchReviews);
 }
 
 .submit-btn {
-  padding: 12px 30px;
+  padding: 11px 18px;
   background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
-  color: black;
+  color: #071916;
   border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 10px;
+  font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .submit-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 250, 171, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 250, 171, 0.28);
 }
 
-/* Empty state */
 .empty-state {
   text-align: center;
-  padding: 60px 20px;
-  color: #555;
+  padding: 56px 20px;
+  color: #8d97a3;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -369,14 +371,17 @@ onMounted(fetchReviews);
 }
 
 .empty-icon {
-  font-size: 2.5rem;
+  font-size: 1.1rem;
+  color: #00faab;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
 }
 
 .empty-state p {
   font-size: 0.95rem;
 }
 
-/* Review cards */
 .reviews-list {
   display: flex;
   flex-direction: column;
@@ -384,16 +389,17 @@ onMounted(fetchReviews);
 }
 
 .review-card {
-  background-color: #18181b;
+  background: linear-gradient(160deg, #1b1f26, #151821);
   padding: 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 250, 171, 0.15);
+  border-radius: 14px;
+  border: 1px solid rgba(0, 250, 171, 0.16);
   transition: 0.3s ease;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
 .review-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 250, 171, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.38);
 }
 
 .review-rating {
@@ -408,13 +414,13 @@ onMounted(fetchReviews);
 
 .rating-num {
   font-size: 0.8rem;
-  color: #555;
+  color: #8d97a3;
   font-weight: 400;
 }
 
 .review-comment {
   margin-bottom: 12px;
-  color: #ccc;
+  color: #d4dae2;
   font-size: 1rem;
   line-height: 1.6;
 }
@@ -428,21 +434,21 @@ onMounted(fetchReviews);
 .reviewer-id {
   font-size: 0.8rem;
   color: #00faab;
-  opacity: 0.6;
+  opacity: 0.75;
   font-weight: 600;
 }
 
 .review-date {
   font-size: 0.8rem;
-  color: #777;
+  color: #8d97a3;
 }
 
 .delete-btn {
   margin-top: 12px;
   padding: 8px 14px;
-  border: 1px solid #ff6b6b;
-  background: transparent;
-  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.55);
+  background: rgba(122, 20, 20, 0.18);
+  color: #ffd4d4;
   border-radius: 8px;
   font-size: 0.85rem;
   cursor: pointer;
@@ -450,7 +456,7 @@ onMounted(fetchReviews);
 }
 
 .delete-btn:hover {
-  background: rgba(255, 107, 107, 0.12);
+  background: rgba(122, 20, 20, 0.34);
 }
 
 .delete-btn:disabled {
@@ -458,13 +464,13 @@ onMounted(fetchReviews);
   cursor: not-allowed;
 }
 
-/* Submitted Reviews Panel */
 .submitted-panel {
   margin-top: 50px;
-  padding: 30px;
-  background-color: #111115;
-  border: 1px solid rgba(0, 250, 171, 0.25);
+  padding: 28px;
+  background: linear-gradient(160deg, #1b1f26, #14161c);
+  border: 1px solid rgba(0, 250, 171, 0.22);
   border-radius: 16px;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.34);
 }
 
 .submitted-title {
@@ -481,7 +487,7 @@ onMounted(fetchReviews);
 }
 
 .submitted-card {
-  background-color: #1a1a1f;
+  background: #141820;
   border: 1px solid rgba(0, 250, 171, 0.2);
   border-radius: 12px;
   padding: 16px;
@@ -508,8 +514,8 @@ onMounted(fetchReviews);
 
 .submitted-product {
   font-size: 0.75rem;
-  color: #555;
-  background-color: #222;
+  color: #c8d2dd;
+  background-color: #2a303a;
   padding: 2px 8px;
   border-radius: 20px;
 }
@@ -525,30 +531,30 @@ onMounted(fetchReviews);
 
 .submitted-comment {
   font-size: 0.9rem;
-  color: #bbb;
+  color: #ced6df;
   line-height: 1.5;
   margin-bottom: 10px;
 }
 
 .submitted-date {
   font-size: 0.75rem;
-  color: #555;
+  color: #8d97a3;
   text-align: right;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .review-grid {
     grid-template-columns: 1fr;
     gap: 40px;
   }
 
-  .hero-title {
-    font-size: 2rem;
+  .hero-section {
+    margin: 14px 12px 0;
+    padding: 28px 18px;
   }
 
-  .hero-section {
-    padding: 50px 20px;
+  .hero-title {
+    font-size: 2rem;
   }
 
   .row-2 {
