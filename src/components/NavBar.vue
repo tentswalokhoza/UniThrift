@@ -88,21 +88,23 @@ const handleLogout = () => {
 
 <style scoped>
 
-/* Navbar background */
+
 .custom-navbar {
   background-color: #000000;
   padding: 0.6rem 0;
 }
 
-/* Brand */
 .navbar-brand {
-  color: #d3d3d3 !important;
+  color: #00faab !important;
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.4rem; 
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4); 
+  letter-spacing: 1px; 
+  
 }
 
 .navbar-brand:hover {
-  color: #ffffff !important;
+  color: #00faab !important;
 }
 
 /* Nav links */

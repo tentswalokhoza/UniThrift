@@ -117,7 +117,7 @@ onMounted(async () => {
 
 
 // category tabs
-const categories = ['All', 'Jackets', 'Shoes', 'Accessories', 'Pants', 'T-Shirts'];
+const categories = ['All', 'Jackets', 'Shoes', 'Accessories', 'Pants', 'T-Shirts','Decoration'];
 
 const getImageUrl = (val) => getProductImage(val) || ''
 
@@ -152,7 +152,8 @@ const getCategoryImage = (category) => {
     Shoes: getImageUrl('converse.png') || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff',
     Accessories: getImageUrl('casio.png') || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30',
     Pants: getImageUrl('bootlegged-jeans.png') || 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246',
-    'T-Shirts': getImageUrl('graphic-tee.png') || 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f'
+    'T-Shirts': getImageUrl('graphic-tee.png') || 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f',
+    Decoration: getImageUrl('chair.png') || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85'
   }
 
   const candidates = allProducts.value
