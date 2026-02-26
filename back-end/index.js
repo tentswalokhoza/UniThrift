@@ -45,6 +45,14 @@ app.delete('/cart/:cartId', removeFromCart)
 app.delete('/cart-clear/:userId', clearCartController)
 app.post('/payment/process', processPayment)
 
+app.use((err, req, res, next) => {
+    console.error(err)
+    if (res.headersSent) {
+        return next(err)
+    }
+    res.status(500).json({ message: err?.message || 'Internal server error' })
+})
+
 // Start server
 app.listen(2006, () => {
     console.log('Server running at http://localhost:2006');

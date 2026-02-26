@@ -3,14 +3,44 @@ import { pool } from '../config.js'
 /**
  * Create a new review
  */
-export const createReview = async (product_id, username, rating, comment) => {
+export const createReview = async (product_id, reviewer_id, rating, comment) => {
   const [result] = await pool.query(
-    `INSERT INTO reviews (product_id, username, rating, comment)
+    `INSERT INTO reviews (product_id, reviewer_id, rating, comment)
      VALUES (?, ?, ?, ?)`,
-    [product_id, username, rating, comment]
+    [product_id, reviewer_id, rating, comment]
   )
 
   return result
+}
+
+/**
+ * Find a user by display name
+ */
+export const getUserByName = async (name) => {
+  const [rows] = await pool.query(
+    `SELECT id, name
+     FROM users
+     WHERE name = ?
+     LIMIT 1`,
+    [name]
+  )
+
+  return rows[0] || null
+}
+
+/**
+ * Find a user by id
+ */
+export const getUserById = async (id) => {
+  const [rows] = await pool.query(
+    `SELECT id, name
+     FROM users
+     WHERE id = ?
+     LIMIT 1`,
+    [id]
+  )
+
+  return rows[0] || null
 }
 
 /**
@@ -18,8 +48,11 @@ export const createReview = async (product_id, username, rating, comment) => {
  */
 export const getAllReviews = async () => {
   const [rows] = await pool.query(
-    `SELECT r.id, r.product_id, r.username, r.rating, r.comment, r.created_at
+    `SELECT r.id, r.product_id, r.reviewer_id,
+            u.name AS username,
+            r.rating, r.comment, r.created_at
      FROM reviews r
+     LEFT JOIN users u ON r.reviewer_id = u.id
      ORDER BY r.created_at DESC`
   )
 
@@ -31,8 +64,11 @@ export const getAllReviews = async () => {
  */
 export const getReviewsByProduct = async (product_id) => {
   const [rows] = await pool.query(
-    `SELECT r.id, r.product_id, r.username, r.rating, r.comment, r.created_at
+    `SELECT r.id, r.product_id, r.reviewer_id,
+            u.name AS username,
+            r.rating, r.comment, r.created_at
      FROM reviews r
+     LEFT JOIN users u ON r.reviewer_id = u.id
      WHERE r.product_id = ?
      ORDER BY r.created_at DESC`,
     [product_id]

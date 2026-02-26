@@ -1,5 +1,7 @@
 import {
   createReview,
+  getUserById,
+  getUserByName,
   getAllReviews,
   getReviewsByProduct,
   deleteReview,
@@ -10,11 +12,23 @@ import {
 // POST /reviews
 export const addReview = async (req, res, next) => {
   try {
-    const { product_id, username, rating, comment } = req.body
-    if (!product_id || !username || !rating) {
+    const { product_id, username, reviewer_id, rating, comment } = req.body
+    if (!product_id || !rating || (!username && !reviewer_id)) {
       return res.status(400).json({ message: 'Missing required fields' })
     }
-    await createReview(product_id, username, rating, comment)
+
+    let reviewer = null
+    if (reviewer_id) {
+      reviewer = await getUserById(reviewer_id)
+    } else if (username) {
+      reviewer = await getUserByName(String(username).trim())
+    }
+
+    if (!reviewer) {
+      return res.status(400).json({ message: 'User not found. Use a registered user name.' })
+    }
+
+    await createReview(product_id, reviewer.id, rating, comment)
     res.status(201).json({ message: 'Review created successfully' })
   } catch (error) {
     if (error?.code === 'ER_DUP_ENTRY') {

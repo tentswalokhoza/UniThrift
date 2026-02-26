@@ -42,12 +42,18 @@ const submitReview = async () => {
 
     if (!res.ok) {
       let message = "Failed to submit review";
-      try {
-        const errorBody = await res.json();
-        if (errorBody?.message) message = errorBody.message;
-      } catch {
-        const errorText = await res.text();
-        if (errorText) message = errorText;
+      const raw = await res.text();
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed?.message) {
+            message = parsed.message;
+          } else {
+            message = raw;
+          }
+        } catch {
+          message = raw;
+        }
       }
       throw new Error(message);
     }
@@ -85,12 +91,18 @@ const deleteReview = async (reviewId) => {
 
     if (!res.ok) {
       let message = "Failed to delete review";
-      try {
-        const errorBody = await res.json();
-        if (errorBody?.message) message = errorBody.message;
-      } catch {
-        const errorText = await res.text();
-        if (errorText) message = errorText;
+      const raw = await res.text();
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed?.message) {
+            message = parsed.message;
+          } else {
+            message = raw;
+          }
+        } catch {
+          message = raw;
+        }
       }
       throw new Error(message);
     }
@@ -133,8 +145,8 @@ onMounted(fetchReviews);
         <form class="review-form" @submit.prevent="submitReview">
           <div class="form-group row-2">
             <div class="form-field">
-              <label>Username</label>
-              <input v-model="formData.username" type="text" placeholder="e.g. john_doe" required />
+              <label>Registered Name</label>
+              <input v-model="formData.username" type="text" placeholder="e.g. Michael Jackson" required />
             </div>
             <div class="form-field">
               <label>Product ID</label>
