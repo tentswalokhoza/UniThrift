@@ -3,9 +3,14 @@ import { ref, onMounted, computed } from "vue";
 import { useRoute } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
 import { searchQuery } from '@/composables/useSearch';
+import { getProductImage } from '@/composables/useProductImages'
+import { useSession } from '@/composables/useSession'
 
 const products = ref([])
 const route = useRoute()
+const { userId } = useSession()
+const cartNotice = ref('')
+const addedMap = ref({})
 
 const filteredProducts = computed(() => {
   let list = products.value
@@ -39,7 +44,7 @@ const toggleCard = (id) => {
 
 const isExpanded = (id) => expandedCards.value.has(id)
 
-// mapping that fetches the images from products folder
+// Build a map of images found under src/assets/product at build time
 const importedImages = import.meta.glob('../assets/product/*', { eager: true, as: 'url' })
 const imageMap = {}
 Object.entries(importedImages).forEach(([path, url]) => {
@@ -105,6 +110,39 @@ const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(amount)
 }
 
+const addToCart = async (product) => {
+  if (product.status === 'sold') return   // ✅ only logic added
+
+  if (!userId) {
+    alert('Please sign in to add items to your cart.')
+    return
+  }
+  try {
+    const res = await fetch('http://localhost:2006/cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId,
+        productId: product.product_id,
+        quantity: 1
+      })
+    })
+    if (!res.ok) throw new Error(res.statusText)
+    cartNotice.value = `${product.title || 'Item'} added to cart`
+    setTimeout(() => { cartNotice.value = '' }, 2000)
+    addedMap.value = { ...addedMap.value, [product.product_id]: true }
+    setTimeout(() => {
+      const next = { ...addedMap.value }
+      delete next[product.product_id]
+      addedMap.value = next
+    }, 2000)
+  } catch (err) {
+    console.error('Failed to add to cart', err)
+    cartNotice.value = 'Failed to add to cart'
+    setTimeout(() => { cartNotice.value = '' }, 2000)
+  }
+}
+
 onMounted(async () => {
   try {
     const res = await fetch('http://localhost:2006/products')
@@ -119,8 +157,9 @@ onMounted(async () => {
 
 <template>
   <NavBar />
-<!-- banner -->
   <div class="catalogue-container">
+    <div v-if="cartNotice" class="toast">{{ cartNotice }}</div>
+
     <div class="hero-section">
       <div class="hero-content">
         <h1 class="hero-title">Catalogue</h1>
@@ -128,7 +167,6 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- catalogue -->
     <div class="content-wrapper">
       <div class="products-row">
         <div
@@ -141,23 +179,21 @@ onMounted(async () => {
             :class="{ expanded: isExpanded(product.product_id) }"
             @click="toggleCard(product.product_id)"
           >
-            <!-- Product Image -->
             <div class="image_container">
-               <img
+              <img
                 :src="getImage(product.image_url || product.image)"
                 :alt="`Photo of ${product.title}`"
               />
             </div>
 
-            
             <div class="card-minimal">
               <div class="title">{{ product.title }}</div>
               <div class="price">{{ formatCurrency(product.price) }}</div>
             </div>
 
-            <!-- expanded details -->
             <div class="card-details-wrapper" :class="{ visible: isExpanded(product.product_id) }">
               <div class="card-details-inner">
+
                 <div class="details-grid">
                   <div class="detail-item">
                     <span class="detail-label">Seller</span>
@@ -177,11 +213,15 @@ onMounted(async () => {
                   </div>
                   <div class="detail-item">
                     <span class="detail-label">Status</span>
-                    <span class="detail-value" :class="`status-${product.status}`">{{ product.status }}</span>
+                    <span class="detail-value" :class="`status-${product.status}`">
+                      {{ product.status }}
+                    </span>
                   </div>
                   <div class="detail-item">
                     <span class="detail-label">Listed</span>
-                    <span class="detail-value">{{ product.created_at ? new Date(product.created_at).toLocaleDateString() : 'N/A' }}</span>
+                    <span class="detail-value">
+                      {{ product.created_at ? new Date(product.created_at).toLocaleDateString() : 'N/A' }}
+                    </span>
                   </div>
                 </div>
 
@@ -190,31 +230,29 @@ onMounted(async () => {
                 </div>
 
                 <div class="action" @click.stop>
-                  <button class="cart-button">
-                    <svg
-                      class="cart-icon"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
-                        stroke-linejoin="round"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                    <span>Add to cart</span>
+                  <button
+                    class="cart-button"
+                    :disabled="product.status === 'sold'"
+                    @click.stop="addToCart(product)"
+                  >
+                    <span>
+                      {{ product.status === 'sold'
+                        ? 'Sold Out'
+                        : addedMap[product.product_id]
+                          ? 'Added'
+                          : 'Add to cart'
+                      }}
+                    </span>
                   </button>
                 </div>
+
               </div>
             </div>
 
-         
             <div class="expand-hint">
               <span class="chevron" :class="{ flipped: isExpanded(product.product_id) }">&#8964;</span>
             </div>
+
           </div>
         </div>
       </div>
@@ -222,11 +260,27 @@ onMounted(async () => {
   </div>
 </template>
 
+
+
 <style scoped>
 .catalogue-container {
   width: 100%;
   background-color: #0f0f12;
   color: #d9d9d9;
+}
+
+.toast {
+  position: fixed;
+  top: 90px;
+  right: 24px;
+  z-index: 50;
+  background: rgba(0, 250, 171, 0.12);
+  color: #00faab;
+  border: 1px solid rgba(0, 250, 171, 0.4);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
 }
 
 

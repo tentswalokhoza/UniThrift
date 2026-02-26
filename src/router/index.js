@@ -5,6 +5,10 @@ import cataloguePage from '@/views/cataloguePage.vue';
 import sellerPage from '@/views/sellerPage.vue';
 import ContactPage from '@/views/contactPage.vue';
 import AboutPage from '@/views/AboutPage.vue';
+import CartPage from '@/views/CartPage.vue';
+import CheckoutPage from '@/views/CheckoutPage.vue';
+import PaymentPage from '@/views/PaymentPage.vue';
+import ConfirmationPage from '@/views/ConfirmationPage.vue';
 import ReviewsPage from '@/views/reviewsPage.vue';
 
 const routes = [
@@ -47,6 +51,26 @@ const routes = [
     path: '/about',
     name: 'about',
     component: AboutPage
+  },
+  {
+    path: '/cart',
+    name: 'cart',
+    component: CartPage
+  },
+  {
+    path: '/checkout',
+    name: 'checkout',
+    component: CheckoutPage
+  },
+  {
+    path: '/payment',
+    name: 'payment',
+    component: PaymentPage
+  },
+  {
+    path: '/confirmation',
+    name: 'confirmation',
+    component: ConfirmationPage
   }
 ]
 

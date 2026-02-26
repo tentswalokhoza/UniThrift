@@ -4,7 +4,7 @@ import { pool } from '../config.js'
 export const getCartItemsDb = async (userId) => {
     const query = `
         SELECT c.cart_id, c.user_id, c.product_id, c.quantity, 
-               p.name, p.price, p.image_url
+               p.title AS name, p.price, p.image_url
         FROM cart c
         JOIN products p ON c.product_id = p.product_id
         WHERE c.user_id = ?
@@ -59,7 +59,7 @@ export const getOrderDb = async (orderId) => {
 // Get order items for a specific order
 export const getOrderItemsDb = async (orderId) => {
     const query = `
-        SELECT oi.*, p.name, p.image_url
+        SELECT oi.*, p.title AS name, p.image_url
         FROM order_items oi
         JOIN products p ON oi.product_id = p.product_id
         WHERE oi.order_id = ?
