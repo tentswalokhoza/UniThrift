@@ -1,3 +1,244 @@
-body{
-  background-color: rgba(0, 43, 42, 0.403);
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  color-scheme: dark;
+  font-family: 'Manrope', sans-serif;
+  --bg: #0f0f12;
+  --bg-elev-1: #17171c;
+  --bg-elev-2: #1f1f26;
+  --text: #e6e6eb;
+  --text-muted: #9da3ae;
+  --border-soft: rgba(0, 250, 171, 0.12);
+  --border-strong: rgba(0, 250, 171, 0.26);
+  --brand-a: #00faab;
+  --brand-b: #00c896;
+  --brand-glow: rgba(0, 250, 171, 0.24);
+  --shadow-lg: 0 20px 45px rgba(0, 0, 0, 0.32);
+  --shadow-md: 0 12px 28px rgba(0, 0, 0, 0.26);
+  --shadow-soft: 0 8px 18px rgba(0, 0, 0, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.02) 0%, transparent 45%),
+    radial-gradient(circle at top right, rgba(0, 250, 171, 0.1), transparent 42%),
+    radial-gradient(circle at bottom left, rgba(0, 200, 150, 0.08), transparent 36%),
+    var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  isolation: isolate;
+}
+
+#app::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.35;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Keep interactions consistent and snappy */
+a,
+button,
+input,
+select,
+textarea {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Subtle custom scrollbar for desktop */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 250, 171, 0.42) rgba(255, 255, 255, 0.06);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(0, 250, 171, 0.65), rgba(0, 200, 150, 0.65));
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(0, 250, 171, 0.82), rgba(0, 200, 150, 0.82));
+}
+
+/* Shared page wrappers (excludes DashboardPage.vue) */
+:is(.catalogue-container, .review-container, .seller-container, .contact-container, .about-container, .login-wrapper, .page) {
+  background: transparent;
+  color: var(--text);
+}
+
+/* Hero sections shared on non-dashboard pages */
+:is(.catalogue-container, .review-container, .seller-container, .contact-container, .about-container, .login-wrapper) .hero-section,
+.page .hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: var(--shadow-soft);
+}
+
+:is(.catalogue-container, .review-container, .seller-container, .contact-container, .about-container, .login-wrapper) .hero-section::before,
+.page .hero::before {
+  content: '';
+  position: absolute;
+  inset: auto -120px -140px auto;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+:is(.catalogue-container, .review-container, .seller-container, .contact-container, .about-container, .login-wrapper) .hero-title,
+.page .hero h1 {
+  letter-spacing: -0.02em;
+}
+
+/* Shared content shells */
+:is(.catalogue-container, .review-container, .seller-container, .contact-container, .about-container, .page) .content-wrapper,
+.page .content {
+  width: min(1200px, 100% - 2rem);
+  margin-inline: auto;
+  animation: page-rise 0.45s ease;
+}
+
+/* Shared cards/panels */
+:is(.review-form, .reviews-list .review-card, .contact-form, .contact-info, .about-section, .value-card, .panel, .summary-card, .products-table, .auth-card, .stat-card) {
+  background: linear-gradient(160deg, rgba(31, 31, 38, 0.94), rgba(23, 23, 28, 0.94));
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-md);
+  border-radius: 14px;
+}
+
+:is(.review-form, .contact-form, .contact-info, .about-section, .auth-card, .panel) {
+  padding: 1.5rem;
+}
+
+:is(.panel, .summary-card, .products-table, .auth-card, .contact-form, .contact-info) {
+  backdrop-filter: blur(6px);
+}
+
+/* Unified section heading rhythm */
+.section-title,
+.values-title,
+.contact-info h2,
+.auth-card h2,
+.panel h2,
+.summary-card h3 {
+  letter-spacing: -0.01em;
+}
+
+/* Inputs and selects */
+input,
+select,
+textarea,
+.form-control {
+  border-radius: 10px;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.form-control:focus {
+  outline: none;
+  border-color: var(--brand-a);
+  box-shadow: 0 0 0 3px rgba(0, 250, 171, 0.16);
+}
+
+/* Shared action buttons */
+button,
+.submit-btn,
+.primary,
+.add-product-btn,
+.cart-button,
+.btn-accent {
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+/* Better elevation and hover consistency */
+:is(.product-card .card, .review-card, .value-card, .stat-card, .panel, .summary-card, .auth-card):hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Better readable muted text across pages */
+.muted,
+.info-item p,
+.section-text,
+.review-comment,
+.review-date,
+.hint,
+.meta {
+  color: var(--text-muted);
+}
+
+@keyframes page-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile spacing tune */
+@media (max-width: 768px) {
+  :is(.catalogue-container, .review-container, .seller-container, .contact-container, .about-container, .login-wrapper) .hero-section,
+  .page .hero {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  :is(.catalogue-container, .review-container, .seller-container, .contact-container, .about-container, .page) .content-wrapper,
+  .page .content {
+    width: min(1200px, 100% - 1.25rem);
+  }
 }

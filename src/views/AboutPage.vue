@@ -87,49 +87,39 @@ import NavBar from '@/components/NavBar.vue'
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(135deg, #00faab 0%, #00c896 100%);
-  padding: 80px 20px;
-  text-align: center;
-  color: black;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 400px;
-  height: 400px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  pointer-events: none;
+  max-width: 1220px;
+  margin: 20px auto 0;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 48%),
+    linear-gradient(125deg, #00faab 0%, #00c896 56%, #009e8f 100%);
+  color: #041311;
+  padding: 38px 28px;
+  border: 1px solid rgba(0, 250, 171, 0.24);
 }
 
 .hero-content {
-  position: relative;
-  z-index: 1;
+  text-align: center;
 }
 
 .hero-title {
-  font-size: 3rem;
-  font-weight: 800;
+  font-size: 2.5rem;
+  font-weight: 900;
   margin: 0;
   margin-bottom: 10px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.02em;
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   margin: 0;
-  opacity: 0.9;
+  color: rgba(4, 19, 17, 0.8);
 }
 
 /* Content Wrapper */
 .content-wrapper {
-  max-width: 1000px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 60px 20px;
 }
@@ -137,6 +127,11 @@ import NavBar from '@/components/NavBar.vue'
 /* About Sections */
 .about-section {
   margin-bottom: 60px;
+  background: linear-gradient(160deg, #1a1d24, #14161c);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 250, 171, 0.14);
+  padding: 24px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.32);
   animation: fadeIn 0.8s ease-in;
 }
 
@@ -210,11 +205,11 @@ import NavBar from '@/components/NavBar.vue'
 }
 
 .value-card {
-  background: linear-gradient(135deg, #27272a 0%, #1f1f23 100%);
+  background: linear-gradient(160deg, #1b1f26, #151821);
   padding: 30px 20px;
-  border-radius: 12px;
+  border-radius: 14px;
   text-align: center;
-  border: 1px solid rgba(0, 250, 171, 0.1);
+  border: 1px solid rgba(0, 250, 171, 0.16);
   transition: all 0.3s ease;
   cursor: pointer;
 }

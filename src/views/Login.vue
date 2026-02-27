@@ -3,7 +3,7 @@
     <div class="hero-section">
       <div class="hero-content">
         <h1 class="hero-title">Welcome to UniThrift</h1>
-        <p class="hero-subtitle">Sign in to your account</p>
+        <p class="hero-subtitle">Your student market</p>
       </div>
     </div>
 
