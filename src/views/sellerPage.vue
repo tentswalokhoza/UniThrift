@@ -42,8 +42,7 @@ const sellerProducts = ref([
     <section class="products-section">
       <div class="section-header">
         <h2 class="section-title">Your Products</h2>
-        <button class="add-product-btn">+ Add New Product</button>
-      </div>
+        <RouterLink to="/sell" class="add-product-btn"> + Sell New Old Product</RouterLink></div>
 
       <div class="products-table">
         <div class="table-header">

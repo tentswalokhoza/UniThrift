@@ -1,3 +1,7 @@
+import Sell from '@/views/Sell.vue'
+import S2S from "@/views/S2S.vue"
+
+
 import { createRouter, createWebHistory } from 'vue-router';
 import DashboardPage from '../views/DashboardPage.vue';
 import Login from '../views/Login.vue';
@@ -30,12 +34,12 @@ const routes = [
   {
     path: '/catalogue',
     name: 'catalogue',
-    component: cataloguePage
+    component: CataloguePage
   },
   {
     path: '/seller',
     name: 'seller',
-    component: sellerPage
+    component: SellerPage
   },
   {
     path: '/contact',
@@ -43,6 +47,9 @@ const routes = [
     component: ContactPage
   },
   {
+  path: '/sell',
+  name: 'sell',
+  component: Sell
     path:'/review',
     name: 'review',
     component: ReviewsPage
@@ -53,6 +60,9 @@ const routes = [
     component: AboutPage
   },
   {
+  path: "/s2s",
+  name: 'S2S',
+  component: S2S
     path: '/cart',
     name: 'cart',
     component: CartPage
@@ -76,7 +86,7 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes
 })
 
 router.beforeEach((to, from, next) => {

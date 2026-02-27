@@ -59,7 +59,16 @@ const handleLogout = () => {
           <li class="nav-item">
             <RouterLink to="/about" class="nav-link">About</RouterLink>
           </li>
+              <li class="nav-item" v-if="isLoggedIn">
+  <button @click="handleLogout" class="nav-link btn btn-link">
+    Logout
+  </button>
+</li>
+                  <router-link to="/s2s">S2S</router-link>
+
         </ul>
+    
+
 
         <!-- Right Section -->
         <div class="d-flex align-items-center gap-3">

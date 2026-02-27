@@ -100,8 +100,9 @@ const handleLogin = async () => {
     )
     message.value = response.data.message
 
-    // Save token
+    // Save token and user ID
     localStorage.setItem("token", response.data.token)
+    localStorage.setItem("user_id", response.data.user_id)
 
     router.push({ name: "dashboard"})
 
@@ -114,20 +115,18 @@ const isLoading = ref(false)
 const phoneError = ref(false)
 
 const validatePhone = (phone) => {
-  const phoneRegex = /^[0-9]{10,15}$/   // 10–15 digits only
+  const phoneRegex = /^[0-9]{10,15}$/
   phoneError.value = !phoneRegex.test(phone)
 }
 
 const handleRegister = async () => {
   message.value = ""
 
-  // Password check
   if (registerForm.value.password !== registerForm.value.confirmPassword) {
     message.value = "Passwords do not match!"
     return
   }
 
-  // Phone validation
   validatePhone(registerForm.value.phone_number)
 
   if (phoneError.value) {
@@ -150,7 +149,6 @@ const handleRegister = async () => {
 
     message.value = response.data.message || "Registered successfully"
 
-    // Reset form
     registerForm.value = {
       name: "",
       email: "",
@@ -159,10 +157,9 @@ const handleRegister = async () => {
       confirmPassword: ""
     }
 
-    // Redirect to login
     setTimeout(() => {
       message.value = ""
-      switchView("login")   // ⚠ make sure it's lowercase
+      switchView("login")
     }, 2000)
 
   } catch (error) {
