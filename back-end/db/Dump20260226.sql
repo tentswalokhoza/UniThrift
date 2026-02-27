@@ -228,6 +228,37 @@ LOCK TABLES `reviews` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `user_product`
+--
+
+DROP TABLE IF EXISTS `user_product`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_product` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `negotiation` longtext NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `image_url` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id_idx` (`user_id`),
+  CONSTRAINT `user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_product`
+--
+
+LOCK TABLES `user_product` WRITE;
+/*!40000 ALTER TABLE `user_product` DISABLE KEYS */;
+INSERT INTO `user_product` VALUES (11,18,'sithengisa amadoda',1235.00,'18: anyone?\n18: okay ungayifumana nge R1001 koda\n18: ewe','2026-02-26 13:24:41','');
+/*!40000 ALTER TABLE `user_product` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `users`
 --
 
@@ -244,7 +275,7 @@ CREATE TABLE `users` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -253,7 +284,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Thina Maliwa','ThinaMadmin@gmail.com','Teemoney1','admin',NULL,'2026-02-20 07:22:38'),(2,'Yaqoob Samsodien','YaqoobSadmin@gmail.com','Yaqoob2','admin',NULL,'2026-02-20 07:22:38'),(3,'Tentsoalo','TKadmin@gmmail.com','TK3','admin',NULL,'2026-02-20 07:22:38'),(4,'Emihle Dumo','EmihleDadmin@gmail.com','Emza4','admin',NULL,'2026-02-20 07:22:38'),(5,'Michael Jackson','MichaelJ@yahoo.com','Mike5','user',NULL,'2026-02-20 07:22:38'),(6,'Jordan Carter','JordanC@yahoo.com','Jordy6','user',NULL,'2026-02-20 07:22:38'),(7,'Ed Hardy','EdH@yahoo.com','Ed7','user',NULL,'2026-02-20 07:22:38'),(8,'Austin Babbit','Austinb@yahoo.com','Aussie8','user',NULL,'2026-02-20 07:22:38'),(9,'Richard Stark','RichardS@yahoo.com','Rich9','user',NULL,'2026-02-20 07:22:38'),(10,'Johnny Dang','JohnnyD@yahoo.com','Johnny10','user',NULL,'2026-02-20 07:22:38'),(11,'Emihle','EmihleDu@gmail.com','$2b$10$lD9/rwBtjsZnj.y0JmnFpuFKdnpJ3gj/qCs96MS0pPc76UpTCFq.y','user',NULL,'2026-02-20 07:22:38'),(12,'siza','siza@gmail.com','$2b$10$uz7UA9W651rs1.M5Y5SL6e7YKBYzjkDLj9gmIs8xEdQe0jHckrx1.','user',NULL,'2026-02-20 07:22:38'),(13,'sam','sam@gmail.com','$2b$10$cwkyXUEpoXATvcOj8J5wd.5Ar47VtdbKK7nYAHRBXDh7H2nbXOoJS','user',NULL,'2026-02-20 07:22:38'),(14,'TK','TK@gmail.com','$2b$10$3zJ0pW6.Dt2Y01b7s8UAJeqPPGUd1ayoTQwOLlcVdrv/3K2NzhmK2','user',NULL,'2026-02-20 07:22:38'),(15,'Emihle','emihleadmin@gmail.com','$2b$10$fGJHsie5laWVRIGC8veptODJm2aPLosb8gOG.NJ4h6HaWj28DEsyC','admin',NULL,'2026-02-20 07:22:38'),(16,'sisipho','sisipho@email.com','$2b$10$nDbR426z79i0ERALLGr7zOa2hD5rhiEXuoAw9.diY6AIUm6SWxMSa','user',NULL,'2026-02-20 07:22:38');
+INSERT INTO `users` VALUES (1,'Thina Maliwa','ThinaMadmin@gmail.com','Teemoney1','admin',NULL,'2026-02-20 07:22:38'),(2,'Yaqoob Samsodien','YaqoobSadmin@gmail.com','Yaqoob2','admin',NULL,'2026-02-20 07:22:38'),(3,'Tentsoalo','TKadmin@gmmail.com','TK3','admin',NULL,'2026-02-20 07:22:38'),(4,'Emihle Dumo','EmihleDadmin@gmail.com','Emza4','admin',NULL,'2026-02-20 07:22:38'),(5,'Michael Jackson','MichaelJ@yahoo.com','Mike5','user',NULL,'2026-02-20 07:22:38'),(6,'Jordan Carter','JordanC@yahoo.com','Jordy6','user',NULL,'2026-02-20 07:22:38'),(7,'Ed Hardy','EdH@yahoo.com','Ed7','user',NULL,'2026-02-20 07:22:38'),(8,'Austin Babbit','Austinb@yahoo.com','Aussie8','user',NULL,'2026-02-20 07:22:38'),(9,'Richard Stark','RichardS@yahoo.com','Rich9','user',NULL,'2026-02-20 07:22:38'),(10,'Johnny Dang','JohnnyD@yahoo.com','Johnny10','user',NULL,'2026-02-20 07:22:38'),(11,'Emihle','EmihleDu@gmail.com','$2b$10$lD9/rwBtjsZnj.y0JmnFpuFKdnpJ3gj/qCs96MS0pPc76UpTCFq.y','user',NULL,'2026-02-20 07:22:38'),(12,'siza','siza@gmail.com','$2b$10$uz7UA9W651rs1.M5Y5SL6e7YKBYzjkDLj9gmIs8xEdQe0jHckrx1.','user',NULL,'2026-02-20 07:22:38'),(13,'sam','sam@gmail.com','$2b$10$cwkyXUEpoXATvcOj8J5wd.5Ar47VtdbKK7nYAHRBXDh7H2nbXOoJS','user',NULL,'2026-02-20 07:22:38'),(14,'TK','TK@gmail.com','$2b$10$3zJ0pW6.Dt2Y01b7s8UAJeqPPGUd1ayoTQwOLlcVdrv/3K2NzhmK2','user',NULL,'2026-02-20 07:22:38'),(15,'Emihle','emihleadmin@gmail.com','$2b$10$fGJHsie5laWVRIGC8veptODJm2aPLosb8gOG.NJ4h6HaWj28DEsyC','admin',NULL,'2026-02-20 07:22:38'),(16,'sisipho','sisipho@email.com','$2b$10$nDbR426z79i0ERALLGr7zOa2hD5rhiEXuoAw9.diY6AIUm6SWxMSa','user',NULL,'2026-02-20 07:22:38'),(17,'EEe','ee@gmail.com','$2b$10$d9HEB0Y8wv6H7omq7nexWeLTtGQqoxaeVztieLZzG96MQ88sDtBBi','user','0782134970','2026-02-20 13:49:18'),(18,'TT','tt@gmail.com','$2b$10$aIjv1j/E4IFgqJ.s4RV9hOS5So7oS84kxywhyYnivMmVS82gGkW2a','user','0212223333','2026-02-23 08:49:49');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -266,4 +297,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-20  9:45:16
+-- Dump completed on 2026-02-26 16:01:51

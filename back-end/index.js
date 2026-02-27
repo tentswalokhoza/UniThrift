@@ -3,22 +3,30 @@ import cors from 'cors';
 import dotenv from "dotenv"
 import authRoutes from "./bcryptAuth.js"
 
+dotenv.config()
 
 
 import { getProducts, getDashboardProducts, patchProducts, postProducts } from './controllers/productsCon.js';
 
 import { getSeller, getTopSellersProducts } from './controllers/sellerCon.js';
 
-dotenv.config()
+import productRoutes  from './routes/productRoutes.js'
+
 
 import {checkout,updateOrderStatus,getOrderDetails,getUserOrders,addToCart,viewCart,removeFromCart,clearCartController} from './controllers/cartCon.js';
 
 import { postContacts } from './controllers/contactCon.js';
+import { insertProductCon, getUserProductCon } from './controllers/sellCon.js';
+import { authMiddleware } from './sellAuth.js';
 
 const app = express();
 app.use(cors()); 
 app.use(express.json());
-app.use("/api/auth", authRoutes)
+app.use("/api/auth", authRoutes);
+app.use("/api/user_product", productRoutes)
+app.post("/sell", authMiddleware, insertProductCon)
+app.get('/my-products', authMiddleware, getUserProductCon);
+
 
 
 //  Start server
