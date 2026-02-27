@@ -42,6 +42,72 @@ export const createOrderItemsDb = async (orderId, cartItems) => {
     }
 };
 
+// Reduce inventory for each checked-out item and mark sold out products
+export const reserveInventoryForCheckoutDb = async (conn, cartItems) => {
+    for (const item of cartItems) {
+        const updateQuery = `
+            UPDATE products
+            SET
+                quantity = quantity - ?,
+                status = CASE
+                    WHEN (quantity - ?) <= 0 THEN 'sold'
+                    ELSE status
+                END
+            WHERE product_id = ?
+              AND status = 'available'
+              AND quantity >= ?
+        `;
+
+        const [result] = await conn.query(updateQuery, [
+            item.quantity,
+            item.quantity,
+            item.product_id,
+            item.quantity
+        ]);
+
+        if (result.affectedRows === 0) {
+            throw new Error(`Insufficient stock for product ${item.product_id}`);
+        }
+    }
+};
+
+// Run checkout in a single transaction:
+// create order -> create order_items -> decrement product quantity -> clear cart
+export const processCheckoutDb = async (buyerId, totalAmount, cartItems) => {
+    const conn = await pool.getConnection();
+    try {
+        await conn.beginTransaction();
+
+        const createOrderQuery = `
+            INSERT INTO orders (buyer_id, total_amount, payment_status)
+            VALUES (?, ?, 'pending')
+        `;
+        const [orderResult] = await conn.query(createOrderQuery, [buyerId, totalAmount]);
+        const orderId = orderResult.insertId;
+
+        const orderItemsQuery = `
+            INSERT INTO order_items (order_id, product_id, quantity, price)
+            VALUES (?, ?, ?, ?)
+        `;
+        for (const item of cartItems) {
+            await conn.query(orderItemsQuery, [orderId, item.product_id, item.quantity, item.price]);
+        }
+
+        await reserveInventoryForCheckoutDb(conn, cartItems);
+
+        const clearCartQuery = `DELETE FROM cart WHERE user_id = ?`;
+        await conn.query(clearCartQuery, [buyerId]);
+
+        await conn.commit();
+        return { orderId };
+    } catch (error) {
+        await conn.rollback();
+        throw error;
+    } finally {
+        conn.release();
+    }
+};
+
 // Clear cart for a user
 export const clearCartDb = async (userId) => {
     const query = `DELETE FROM cart WHERE user_id = ?`;
@@ -98,8 +164,26 @@ export const getUserOrdersDb = async (userId) => {
 
 // Add item to cart or update quantity if exists
 export const addToCartDb = async (userId, productId, quantity) => {
+    const productQuery = `SELECT product_id, quantity, status FROM products WHERE product_id = ?`;
+    const [productRows] = await pool.query(productQuery, [productId]);
+    const product = productRows[0];
+
+    if (!product) {
+        throw new Error('Product not found');
+    }
+
+    if (product.status !== 'available') {
+        throw new Error('This product is not available');
+    }
+
     const checkQuery = `SELECT * FROM cart WHERE user_id = ? AND product_id = ?`;
     const [existing] = await pool.query(checkQuery, [userId, productId]);
+    const existingQuantity = existing.length > 0 ? Number(existing[0].quantity) : 0;
+    const requestedTotal = existingQuantity + Number(quantity);
+
+    if (requestedTotal > Number(product.quantity)) {
+        throw new Error(`Only ${product.quantity} item(s) available`);
+    }
 
     if (existing.length > 0) {
         // Update quantity if product already in cart

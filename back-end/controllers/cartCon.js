@@ -1,15 +1,14 @@
 import {
     getCartItemsDb,
     calculateTotalPrice,
-    createOrderDb,
-    createOrderItemsDb,
     clearCartDb,
     getOrderDb,
     getOrderItemsDb,
     updateOrderStatusDb,
     getUserOrdersDb,
     addToCartDb,
-    removeFromCartDb
+    removeFromCartDb,
+    processCheckoutDb
 } from '../models/cartDb.js';
 
 
@@ -34,11 +33,7 @@ export const checkout = async (req, res, next) => {
 
         const totalAmount = calculateTotalPrice(cartItems);
 
-        const orderResult = await createOrderDb(userId, totalAmount);
-        const orderId = orderResult.insertId;
-
-        await createOrderItemsDb(orderId, cartItems);
-        await clearCartDb(userId);
+        const { orderId } = await processCheckoutDb(userId, totalAmount, cartItems);
 
         res.json({
             success: true,
@@ -49,6 +44,9 @@ export const checkout = async (req, res, next) => {
         });
 
     } catch (error) {
+        if (error.message?.includes('Insufficient stock')) {
+            error.status = 409;
+        }
         next(error);
     }
 };
@@ -82,6 +80,14 @@ export const updateOrderStatus = async (req, res, next) => {
         });
 
     } catch (error) {
+        if (
+            error.message === 'Product not found' ||
+            error.message === 'This product is not available'
+        ) {
+            error.status = 404;
+        } else if (error.message?.includes('item(s) available')) {
+            error.status = 409;
+        }
         next(error);
     }
 };
